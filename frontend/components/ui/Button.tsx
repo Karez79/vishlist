@@ -14,17 +14,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary text-white hover:bg-primary-light shadow-sm hover:shadow-md",
+    "bg-primary text-white hover:bg-primary-light active:scale-[0.98]",
   secondary:
-    "bg-surface text-text border border-gray-200 hover:border-gray-300 hover:bg-gray-50",
-  ghost: "text-text-muted hover:text-text hover:bg-gray-100",
-  danger: "bg-error text-white hover:bg-red-500",
+    "bg-fill text-text hover:bg-separator active:scale-[0.98]",
+  ghost: "text-text-muted hover:text-text hover:bg-fill active:scale-[0.98]",
+  danger: "bg-error text-white hover:bg-red-600 active:scale-[0.98]",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-sm rounded-lg",
-  md: "px-4 py-2 text-sm rounded-xl",
-  lg: "px-6 py-3 text-base rounded-xl",
+  sm: "px-3 py-1.5 text-sm rounded-xl",
+  md: "px-4 py-2 text-sm rounded-2xl",
+  lg: "px-6 py-3 text-base rounded-2xl",
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(

@@ -41,11 +41,11 @@ export default function PublicItemCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.5) }}
-      className="bg-surface rounded-2xl border border-gray-100 shadow-sm p-4 transition-all duration-200 hover:shadow-md"
+      className="bg-surface rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.06)] p-4 transition-shadow duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
     >
       <div className="flex gap-3">
         {/* Image */}
-        <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-rose-50 to-orange-50">
+        <div className="relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-fill">
           {item.image_url && !imgError ? (
             <Image
               src={item.image_url}
@@ -73,7 +73,7 @@ export default function PublicItemCard({
 
           <div className="flex items-center gap-3 mt-1.5">
             {item.price != null && (
-              <span className="text-sm font-semibold text-primary">
+              <span className="text-sm font-semibold text-text">
                 {formatPrice(item.price)}
               </span>
             )}
@@ -112,10 +112,10 @@ export default function PublicItemCard({
 
       {/* Reservation info (for guests) */}
       {!isOwner && item.reservation && (
-        <div className="mt-3 text-xs text-text-muted bg-reserved/10 rounded-lg px-3 py-2">
+        <div className="mt-3 text-xs text-text-muted bg-fill rounded-2xl px-3 py-2">
           Зарезервировал(а): {item.reservation.guest_name}
           {myReservation && (
-            <span className="text-reserved font-medium ml-1">(это вы)</span>
+            <span className="text-primary font-medium ml-1">(это вы)</span>
           )}
         </div>
       )}
@@ -126,7 +126,7 @@ export default function PublicItemCard({
           {item.contributions.map((c) => (
             <div
               key={c.id}
-              className="text-xs text-text-muted flex items-center justify-between bg-gray-50 rounded-lg px-3 py-1.5"
+              className="text-xs text-text-muted flex items-center justify-between bg-fill rounded-2xl px-3 py-1.5"
             >
               <span>
                 {c.guest_name}{" "}

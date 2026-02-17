@@ -60,7 +60,7 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-heading font-bold">Мои вишлисты</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Мои вишлисты</h1>
         <Button onClick={() => router.push("/wishlists/new")}>
           <Plus size={18} className="mr-1.5" />
           Создать
@@ -94,10 +94,10 @@ export default function DashboardPage() {
                 <button
                   key={i + 1}
                   onClick={() => setPage(i + 1)}
-                  className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                  className={`px-3 py-1.5 rounded-xl text-sm transition-colors ${
                     page === i + 1
                       ? "bg-primary text-white"
-                      : "bg-surface text-text-muted hover:bg-gray-100"
+                      : "bg-surface text-text-muted hover:bg-fill"
                   }`}
                 >
                   {i + 1}

@@ -29,7 +29,7 @@ export default function Modal({
           <Dialog.Portal forceMount>
             <Dialog.Overlay asChild>
               <motion.div
-                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+                className="fixed inset-0 bg-black/25 backdrop-blur-md z-50"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -39,13 +39,13 @@ export default function Modal({
             <Dialog.Content asChild>
               <motion.div
                 className={cn(
-                  "fixed z-50 bg-surface shadow-xl focus:outline-none",
+                  "fixed z-50 bg-surface shadow-[0_20px_60px_rgba(0,0,0,0.12),0_4px_20px_rgba(0,0,0,0.08)] focus:outline-none",
                   // Mobile: bottom sheet
-                  "bottom-0 left-0 right-0 rounded-t-3xl p-6 max-h-[85vh] overflow-y-auto",
+                  "bottom-0 left-0 right-0 rounded-t-[28px] p-6 max-h-[85vh] overflow-y-auto",
                   // Desktop: centered dialog
                   "sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:right-auto",
                   "sm:-translate-x-1/2 sm:-translate-y-1/2",
-                  "sm:rounded-2xl sm:w-full sm:max-w-md sm:max-h-[85vh]",
+                  "sm:rounded-3xl sm:w-full sm:max-w-md sm:max-h-[85vh]",
                   className
                 )}
                 initial={{ opacity: 0, y: 100 }}
@@ -61,7 +61,7 @@ export default function Modal({
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     {title && (
-                      <Dialog.Title className="text-lg font-heading font-semibold text-text">
+                      <Dialog.Title className="text-xl font-semibold tracking-tight text-text">
                         {title}
                       </Dialog.Title>
                     )}
@@ -71,7 +71,7 @@ export default function Modal({
                       </Dialog.Description>
                     )}
                   </div>
-                  <Dialog.Close className="p-1 rounded-lg hover:bg-gray-100 transition-colors text-text-muted hover:text-text" aria-label="Закрыть">
+                  <Dialog.Close className="p-1.5 rounded-xl hover:bg-fill transition-colors text-text-muted hover:text-text" aria-label="Закрыть">
                     <X size={20} />
                   </Dialog.Close>
                 </div>

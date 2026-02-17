@@ -40,7 +40,7 @@ export default function ReserveModal({
         particleCount: 80,
         spread: 60,
         origin: { y: 0.6 },
-        colors: ["#C44569", "#FF9A56", "#FF6B9D", "#FFF8F0"],
+        colors: ["#007AFF", "#5856D6", "#34C759", "#FF9F0A"],
       });
     } catch {
       // Error handled by mutation
@@ -105,7 +105,7 @@ export default function ReserveModal({
       ) : (
         <div className="text-center space-y-4">
           <div className="text-4xl mb-2">🎉</div>
-          <h3 className="text-lg font-heading font-bold">
+          <h3 className="text-lg font-bold tracking-tight">
             Готово!
           </h3>
           <p className="text-text-muted text-sm">
@@ -113,7 +113,7 @@ export default function ReserveModal({
           </p>
 
           {!userName && onSaveEmail && (
-            <div className="mt-6 pt-4 border-t border-gray-100">
+            <div className="mt-6 pt-4 border-t border-separator">
               <p className="text-sm text-text-muted mb-3">
                 Куда отправить подтверждение?
               </p>
