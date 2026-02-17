@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.database import Base
+from app.core.database import Base, utcnow
 
 
 class ItemReservation(Base):
@@ -16,7 +16,7 @@ class ItemReservation(Base):
     guest_name: Mapped[str | None] = mapped_column(String(50))
     guest_token: Mapped[str | None] = mapped_column(String(255), index=True)
     guest_email: Mapped[str | None] = mapped_column(String(255))
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(default=utcnow)
 
     item: Mapped["WishlistItem"] = relationship(back_populates="reservation")
 
