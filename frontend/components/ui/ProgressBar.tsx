@@ -1,7 +1,4 @@
-"use client";
-
-import { cn } from "@/lib/utils";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 
 interface ProgressBarProps {
   current: number;

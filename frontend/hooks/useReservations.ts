@@ -4,15 +4,10 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import apiClient from "@/lib/api-client";
+import { getGuestHeaders } from "@/lib/guest-token";
 import type { PublicWishlist } from "@/types";
 
 type InfiniteWishlist = InfiniteData<PublicWishlist, number>;
-
-function getGuestHeaders(slug: string): Record<string, string> {
-  if (typeof window === "undefined") return {};
-  const token = localStorage.getItem(`guest_token_${slug}`);
-  return token ? { "X-Guest-Token": token } : {};
-}
 
 function updateItemsInPages(
   old: InfiniteWishlist,

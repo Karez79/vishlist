@@ -4,8 +4,9 @@ import Image from "next/image";
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
-import { Badge, Button, ProgressBar } from "@/components/ui";
+import { Button, ProgressBar } from "@/components/ui";
 import { formatPrice } from "@/lib/utils";
+import { getStatusBadge } from "@/components/ui/item-utils";
 import type { WishlistItem } from "@/types";
 
 interface PublicItemCardProps {
@@ -34,19 +35,6 @@ export default function PublicItemCard({
     item.price && item.total_contributed >= item.price;
   const myReservation = item.reservation?.is_mine;
   const myContributions = item.contributions?.filter((c) => c.is_mine) || [];
-
-  const getStatusBadge = () => {
-    if (item.is_reserved) return <Badge variant="reserved">Зарезервирован</Badge>;
-    if (item.price && item.total_contributed > 0) {
-      const pct = Math.min(
-        Math.round((item.total_contributed / item.price) * 100),
-        100
-      );
-      if (pct >= 100) return <Badge variant="collected">Собрано!</Badge>;
-      return <Badge variant="collecting">Сбор {pct}%</Badge>;
-    }
-    return <Badge variant="available">Доступен</Badge>;
-  };
 
   return (
     <motion.div
@@ -80,7 +68,7 @@ export default function PublicItemCard({
             <h4 className="font-medium text-text line-clamp-2" title={item.title}>
               {item.title}
             </h4>
-            {getStatusBadge()}
+            {getStatusBadge(item)}
           </div>
 
           <div className="flex items-center gap-3 mt-1.5">
@@ -96,6 +84,7 @@ export default function PublicItemCard({
                 rel="noopener noreferrer"
                 className="text-text-muted hover:text-primary transition-colors"
                 onClick={(e) => e.stopPropagation()}
+                aria-label="Открыть ссылку"
               >
                 <ExternalLink size={14} />
               </a>

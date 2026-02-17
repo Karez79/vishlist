@@ -4,7 +4,6 @@ from sqlalchemy import Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
-from app.schemas.pagination import PaginatedResponse
 
 
 async def paginate(

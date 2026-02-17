@@ -39,7 +39,7 @@ class ItemResponse(BaseModel):
 
 class ReorderItem(BaseModel):
     id: str
-    position: int
+    position: int = Field(ge=0)
 
 
 class ReorderRequest(BaseModel):

@@ -1,6 +1,7 @@
+import secrets
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -19,6 +20,7 @@ def item_to_public_response(
     item: WishlistItem,
     is_owner: bool,
     guest_token: str | None = None,
+    user: User | None = None,
 ) -> dict:
     is_reserved = item.reservation is not None
     total_contributed = sum(c.amount for c in item.contributions) if item.contributions else 0
@@ -53,7 +55,8 @@ def item_to_public_response(
                 "item_id": str(r.item_id),
                 "guest_name": r.guest_name,
                 "is_mine": (
-                    (guest_token and r.guest_token == guest_token)
+                    (user is not None and r.user_id is not None and r.user_id == user.id)
+                    or (guest_token and r.guest_token and secrets.compare_digest(r.guest_token, guest_token))
                     or False
                 ),
                 "created_at": r.created_at.isoformat(),
@@ -69,7 +72,8 @@ def item_to_public_response(
                 "guest_name": c.guest_name,
                 "amount": c.amount,
                 "is_mine": (
-                    (guest_token and c.guest_token == guest_token)
+                    (user is not None and c.user_id is not None and c.user_id == user.id)
+                    or (guest_token and c.guest_token and secrets.compare_digest(c.guest_token, guest_token))
                     or False
                 ),
                 "created_at": c.created_at.isoformat(),
@@ -129,7 +133,7 @@ async def get_public_wishlist(
 
     items_data = {
         "items": [
-            item_to_public_response(item, is_owner, x_guest_token)
+            item_to_public_response(item, is_owner, x_guest_token, user)
             for item in items_result["items"]
         ],
         "total": items_result["total"],

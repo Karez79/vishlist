@@ -56,7 +56,7 @@ export default function DashboardLayout({
             <span className="text-sm text-text-muted hidden sm:inline">
               {user?.name}
             </span>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
+            <Button variant="ghost" size="sm" onClick={handleLogout} aria-label="Выйти">
               <LogOut size={18} />
             </Button>
           </div>

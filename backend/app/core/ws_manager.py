@@ -4,9 +4,9 @@ from collections import defaultdict
 
 from fastapi import WebSocket
 
-logger = logging.getLogger(__name__)
+from app.core.constants import WS_PING_INTERVAL
 
-PING_INTERVAL = 30  # seconds
+logger = logging.getLogger(__name__)
 
 
 class ConnectionManager:
@@ -55,7 +55,7 @@ class ConnectionManager:
         """Send periodic pings to keep connection alive."""
         try:
             while True:
-                await asyncio.sleep(PING_INTERVAL)
+                await asyncio.sleep(WS_PING_INTERVAL)
                 await websocket.send_json({"type": "ping"})
         except Exception:
             pass

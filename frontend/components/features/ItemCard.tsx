@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { ExternalLink, GripVertical, Pencil, Trash2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import { Badge } from "@/components/ui";
+import { getStatusBadge } from "@/components/ui/item-utils";
 import type { WishlistItem } from "@/types";
 
 interface ItemCardProps {
@@ -23,16 +23,6 @@ export default function ItemCard({
   dragHandleProps,
 }: ItemCardProps) {
   const [imgError, setImgError] = useState(false);
-
-  const getStatusBadge = () => {
-    if (item.is_reserved) return <Badge variant="reserved">Зарезервирован</Badge>;
-    if (item.price && item.total_contributed > 0) {
-      const pct = Math.min(Math.round((item.total_contributed / item.price) * 100), 100);
-      if (pct >= 100) return <Badge variant="collected">Собрано!</Badge>;
-      return <Badge variant="collecting">Сбор {pct}%</Badge>;
-    }
-    return <Badge variant="available">Доступен</Badge>;
-  };
 
   return (
     <div className="flex gap-3 bg-surface rounded-2xl border border-gray-100 shadow-sm p-4 transition-all duration-200 hover:shadow-md group">
@@ -70,11 +60,11 @@ export default function ItemCard({
           <h4 className="font-medium text-text line-clamp-2" title={item.title}>
             {item.title}
           </h4>
-          {getStatusBadge()}
+          {getStatusBadge(item)}
         </div>
 
         <div className="flex items-center gap-3 mt-1.5">
-          {item.price && (
+          {item.price != null && (
             <span className="text-sm font-semibold text-primary">
               {formatPrice(item.price)}
             </span>
@@ -86,6 +76,7 @@ export default function ItemCard({
               rel="noopener noreferrer"
               className="text-text-muted hover:text-primary transition-colors"
               onClick={(e) => e.stopPropagation()}
+              aria-label="Открыть ссылку"
             >
               <ExternalLink size={14} />
             </a>

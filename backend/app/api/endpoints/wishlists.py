@@ -149,8 +149,11 @@ async def update_wishlist(
     if not wishlist:
         raise HTTPException(status_code=404, detail="Вишлист не найден")
 
+    allowed_fields = {"title", "description", "emoji", "event_date", "is_archived"}
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
+        if field not in allowed_fields:
+            continue
         if field == "title" and value:
             value = value.strip()
         if field == "description" and value:
@@ -158,6 +161,8 @@ async def update_wishlist(
         setattr(wishlist, field, value)
 
     await db.flush()
+
+    await manager.broadcast(wishlist.slug, {"type": "wishlist_updated"})
     return wishlist_to_response(wishlist)
 
 
@@ -205,4 +210,6 @@ async def restore_wishlist(
 
     wishlist.is_deleted = False
     await db.flush()
+
+    await manager.broadcast(wishlist.slug, {"type": "wishlist_updated"})
     return wishlist_to_response(wishlist)

@@ -161,8 +161,11 @@ async def update_item(
     if not item:
         raise HTTPException(status_code=404, detail="Товар не найден")
 
+    allowed_fields = {"title", "url", "price", "image_url", "note"}
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
+        if field not in allowed_fields:
+            continue
         if field in ("title", "note") and isinstance(value, str):
             value = value.strip()
         setattr(item, field, value)
@@ -239,18 +242,22 @@ async def reorder_items(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    await get_owner_wishlist(wishlist_id, user, db)
+    wishlist = await get_owner_wishlist(wishlist_id, user, db)
+
+    # Fetch all items in one query
+    result = await db.execute(
+        select(WishlistItem).where(
+            WishlistItem.wishlist_id == wishlist_id,
+            WishlistItem.is_deleted == False,
+        )
+    )
+    items_map = {str(item.id): item for item in result.scalars().all()}
 
     for reorder_item in data.items:
-        result = await db.execute(
-            select(WishlistItem).where(
-                WishlistItem.id == UUID(reorder_item.id),
-                WishlistItem.wishlist_id == wishlist_id,
-            )
-        )
-        item = result.scalar_one_or_none()
+        item = items_map.get(reorder_item.id)
         if item:
             item.position = reorder_item.position
 
     await db.flush()
+    await manager.broadcast(wishlist.slug, {"type": "items_reordered"})
     return {"detail": "Порядок обновлён"}

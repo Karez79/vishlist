@@ -27,4 +27,5 @@ async def create_unique_slug(title: str, db: AsyncSession, max_attempts: int = 5
         suffix = "".join(secrets.choice(string.ascii_lowercase + string.digits) for _ in range(4))
         slug = f"{base_slug}-{suffix}"
 
+    # Last attempt — return and let DB unique constraint handle collision
     return slug
