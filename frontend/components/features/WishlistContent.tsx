@@ -182,7 +182,7 @@ export default function WishlistContent({
       {/* Owner banner */}
       {wishlist.is_owner && (
         <div className="bg-primary/5 border-b border-primary/10">
-          <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
             <span className="text-sm text-primary font-medium">
               Это ваш вишлист — друзья видят его так
             </span>
@@ -196,7 +196,7 @@ export default function WishlistContent({
         </div>
       )}
 
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Navigation */}
         <div className="flex items-center justify-between mb-8">
           <Link
@@ -256,7 +256,7 @@ export default function WishlistContent({
             />
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             {items.map((item, index) => (
               <PublicItemCard
                 key={item.id}

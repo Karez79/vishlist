@@ -93,7 +93,7 @@ export default function WishlistEditPage() {
 
   if (wishlistLoading) {
     return (
-      <div className="max-w-3xl mx-auto pt-4">
+      <div className="max-w-4xl mx-auto pt-4">
         <Skeleton className="h-6 w-20 mb-8 rounded-xl" />
         <div className="flex items-center gap-4 mb-8">
           <Skeleton className="w-16 h-16 rounded-3xl" />
@@ -119,7 +119,7 @@ export default function WishlistEditPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto pt-4">
+    <div className="max-w-4xl mx-auto pt-4">
       {/* Back button */}
       <button
         onClick={() => router.push("/dashboard")}
