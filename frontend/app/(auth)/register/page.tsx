@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Gift } from "lucide-react";
 import { useRegister } from "@/hooks/useAuth";
 import { useAuthStore } from "@/lib/store";
 import { Button, Input } from "@/components/ui";
@@ -46,9 +47,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4">
+    <main className="min-h-screen flex items-center justify-center px-4 bg-bg">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center gap-2 text-text font-bold tracking-tight text-xl mb-6">
+            <Gift size={24} className="text-primary" />
+            Vishlist
+          </Link>
           <h1 className="text-3xl font-bold tracking-tight text-text mb-2">
             Регистрация
           </h1>

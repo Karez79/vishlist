@@ -22,9 +22,23 @@ const STEPS = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
+      {/* Nav */}
+      <nav className="max-w-4xl mx-auto px-4 pt-6 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-text font-bold tracking-tight text-xl">
+          <Gift size={24} className="text-primary" />
+          Vishlist
+        </div>
+        <Link
+          href="/login"
+          className="text-sm font-medium text-text-muted hover:text-text transition-colors"
+        >
+          Войти
+        </Link>
+      </nav>
+
       {/* Hero */}
       <section className="relative">
-        <div className="max-w-4xl mx-auto px-4 pt-24 pb-20 text-center">
+        <div className="max-w-4xl mx-auto px-4 pt-20 pb-20 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fill text-text-muted text-sm font-medium mb-8">
             <Sparkles size={14} />
             Бесплатно и без рекламы
@@ -42,7 +56,7 @@ export default function Home() {
 
           <Link
             href="/login?redirect=/wishlists/new"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-semibold text-lg shadow-lg shadow-black/8 hover:shadow-xl hover:shadow-black/12 hover:-translate-y-0.5 transition-all duration-200"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-semibold text-lg shadow-lg shadow-black/8 hover:shadow-xl hover:shadow-black/12 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
           >
             <Gift size={20} />
             Создать вишлист
@@ -51,21 +65,26 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section className="max-w-4xl mx-auto px-4 py-24">
-        <h2 className="text-3xl font-bold tracking-tight text-center mb-16">
-          Как это работает
-        </h2>
+      <section className="bg-bg/50">
+        <div className="max-w-4xl mx-auto px-4 py-24">
+          <h2 className="text-3xl font-bold tracking-tight text-center mb-16">
+            Как это работает
+          </h2>
 
-        <div className="grid md:grid-cols-3 gap-10">
-          {STEPS.map((step, i) => (
-            <div key={i} className="group text-center">
-              <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-primary/8 flex items-center justify-center group-hover:bg-primary/12 group-hover:scale-105 transition-all duration-300">
-                <step.icon size={28} className="text-primary" />
+          <div className="grid md:grid-cols-3 gap-10">
+            {STEPS.map((step, i) => (
+              <div key={i} className="group text-center">
+                <div className="relative w-16 h-16 mx-auto mb-5 rounded-2xl bg-primary/8 flex items-center justify-center group-hover:bg-primary/12 group-hover:scale-105 transition-all duration-300">
+                  <step.icon size={28} className="text-primary" />
+                  <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
+                    {i + 1}
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold tracking-tight mb-2">{step.title}</h3>
+                <p className="text-text-muted text-sm leading-relaxed">{step.description}</p>
               </div>
-              <h3 className="text-lg font-semibold tracking-tight mb-2">{step.title}</h3>
-              <p className="text-text-muted text-sm leading-relaxed">{step.description}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
@@ -98,19 +117,21 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="max-w-4xl mx-auto px-4 py-24 text-center">
-        <h2 className="text-3xl font-bold tracking-tight mb-4">
-          Готовы к праздникам?
-        </h2>
-        <p className="text-text-muted mb-8">
-          Создайте первый вишлист за 30 секунд
-        </p>
-        <Link
-          href="/login?redirect=/wishlists/new"
-          className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-semibold shadow-lg shadow-black/8 hover:shadow-xl hover:shadow-black/12 hover:-translate-y-0.5 transition-all duration-200"
-        >
-          Начать бесплатно
-        </Link>
+      <section className="max-w-4xl mx-auto px-4 py-24">
+        <div className="text-center p-12 rounded-3xl bg-gradient-to-br from-primary/5 via-primary/3 to-transparent border border-primary/10">
+          <h2 className="text-3xl font-bold tracking-tight mb-4">
+            Готовы к праздникам?
+          </h2>
+          <p className="text-text-muted mb-8">
+            Создайте первый вишлист за 30 секунд
+          </p>
+          <Link
+            href="/login?redirect=/wishlists/new"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-semibold shadow-lg shadow-black/8 hover:shadow-xl hover:shadow-black/12 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+          >
+            Начать бесплатно
+          </Link>
+        </div>
       </section>
 
       {/* Footer */}

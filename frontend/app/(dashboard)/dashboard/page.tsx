@@ -109,15 +109,21 @@ export default function DashboardPage() {
       </div>
 
       {wishlists.length === 0 ? (
-        <EmptyState
-          icon={<Gift size={48} />}
-          title="У вас пока нет вишлистов"
-          description="Создайте список желаний и поделитесь с друзьями — они смогут выбрать подарки без повторов"
-          actionLabel="Создать первый вишлист"
-          onAction={() => router.push("/wishlists/new")}
-        />
+        <div className="bg-surface rounded-3xl border border-separator/60 p-8">
+          <EmptyState
+            icon={<Gift size={48} />}
+            title="У вас пока нет вишлистов"
+            description="Создайте список желаний и поделитесь с друзьями — они смогут выбрать подарки без повторов"
+            actionLabel="Создать первый вишлист"
+            onAction={() => router.push("/wishlists/new")}
+          />
+        </div>
       ) : (
         <>
+          <h2 className="font-semibold text-text mb-4">
+            Мои вишлисты
+            <span className="text-text-muted font-normal ml-1.5">{wishlists.length}</span>
+          </h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {wishlists.map((w, i) => (
               <motion.div

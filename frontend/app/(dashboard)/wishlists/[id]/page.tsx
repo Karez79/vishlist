@@ -130,13 +130,13 @@ export default function WishlistEditPage() {
       </button>
 
       {/* Wishlist header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex items-start justify-between mb-8 bg-surface rounded-3xl border border-separator/60 p-5">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-3xl bg-primary/8 flex items-center justify-center text-3xl flex-shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-primary/8 flex items-center justify-center text-2xl flex-shrink-0">
             {wishlist.emoji}
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">{wishlist.title}</h1>
+            <h1 className="text-xl font-bold tracking-tight">{wishlist.title}</h1>
             {wishlist.description && (
               <p className="text-text-muted text-sm mt-0.5">
                 {wishlist.description}
