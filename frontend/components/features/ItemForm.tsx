@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -51,6 +51,7 @@ export default function ItemForm({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const parseUrl = useParseUrl();
   const debounceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const lastParsedUrl = useRef<string>("");
 
   const {
     register,
@@ -67,45 +68,42 @@ export default function ItemForm({
 
   // eslint-disable-next-line react-hooks/incompatible-library -- RHF watch() is intentionally non-memoizable
   const urlValue = watch("url");
-  const titleValue = watch("title");
 
   // Auto-fill from URL with debounce
-  const handleUrlAutofill = useCallback(
-    (url: string) => {
-      if (!url || getValues("title")) return; // Don't overwrite existing title
-
-      try {
-        new URL(url);
-      } catch {
-        return; // Not a valid URL yet
-      }
-
-      clearTimeout(debounceTimer.current);
-      debounceTimer.current = setTimeout(() => {
-        parseUrl.mutate(url, {
-          onSuccess: (data) => {
-            if (data.title && !getValues("title")) {
-              setValue("title", data.title);
-            }
-            if (data.image_url) {
-              setValue("image_url", data.image_url);
-              setShowAdvanced(true);
-            }
-            if (data.price) {
-              setValue("price", data.price);
-            }
-          },
-        });
-      }, 500);
-    },
-    [parseUrl, setValue, getValues]
-  );
-
   useEffect(() => {
-    if (urlValue && !defaultValues?.title) {
-      handleUrlAutofill(urlValue);
+    if (!urlValue || defaultValues?.title || getValues("title")) return;
+
+    try {
+      new URL(urlValue);
+    } catch {
+      return;
     }
-  }, [urlValue, handleUrlAutofill, defaultValues?.title]);
+
+    // Don't re-parse the same URL
+    if (lastParsedUrl.current === urlValue) return;
+
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      lastParsedUrl.current = urlValue;
+      parseUrl.mutate(urlValue, {
+        onSuccess: (data) => {
+          if (data.title && !getValues("title")) {
+            setValue("title", data.title);
+          }
+          if (data.image_url) {
+            setValue("image_url", data.image_url);
+            setShowAdvanced(true);
+          }
+          if (data.price) {
+            setValue("price", data.price);
+          }
+        },
+      });
+    }, 500);
+
+    return () => clearTimeout(debounceTimer.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- parseUrl.mutate is stable, avoid loop from parseUrl object
+  }, [urlValue]);
 
   const handleFormSubmit = (data: FormData) => {
     onSubmit({
