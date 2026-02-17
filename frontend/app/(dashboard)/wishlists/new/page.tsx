@@ -9,7 +9,20 @@ import { ArrowLeft, Gift } from "lucide-react";
 import { Button, Input, Textarea, DatePicker } from "@/components/ui";
 import { useCreateWishlist } from "@/hooks/useWishlists";
 
-const EMOJIS = ["🎁", "🎂", "🎄", "💍", "🎓", "🏠", "✈️", "🎉", "💝", "🧸", "📱", "👟"];
+const EMOJI_CATEGORIES = [
+  {
+    label: "Праздники",
+    emojis: ["🎁", "🎂", "🎉", "🥂", "🎄", "🎃"],
+  },
+  {
+    label: "Особый день",
+    emojis: ["💍", "👶", "🎓", "💝", "🌹", "🏠"],
+  },
+  {
+    label: "Увлечения",
+    emojis: ["✈️", "🎮", "📚", "🎵", "👗", "⚽"],
+  },
+];
 
 const schema = z.object({
   title: z.string().min(1, "Введите название").max(100),
@@ -58,9 +71,9 @@ export default function NewWishlistPage() {
         Назад
       </button>
 
-      {/* Header with preview */}
+      {/* Header with live preview */}
       <div className="text-center mb-8">
-        <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-primary/8 flex items-center justify-center text-4xl">
+        <div className="w-24 h-24 mx-auto mb-5 rounded-3xl bg-primary/8 flex items-center justify-center text-5xl transition-all duration-300">
           {emoji}
         </div>
         <h1 className="text-2xl font-bold tracking-tight">
@@ -72,29 +85,40 @@ export default function NewWishlistPage() {
       </div>
 
       <div className="bg-surface rounded-3xl border border-separator/60 p-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Emoji picker */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Emoji picker by category */}
           <div>
-            <label className="block text-sm font-medium text-text mb-2.5">
+            <label className="block text-sm font-medium text-text mb-3">
               Иконка
             </label>
-            <div className="flex flex-wrap gap-2">
-              {EMOJIS.map((e) => (
-                <button
-                  key={e}
-                  type="button"
-                  onClick={() => setEmoji(e)}
-                  className={`w-11 h-11 rounded-2xl text-xl flex items-center justify-center transition-all duration-200 ${
-                    emoji === e
-                      ? "bg-primary/10 ring-2 ring-primary scale-110 shadow-sm"
-                      : "bg-fill hover:bg-separator hover:scale-105"
-                  }`}
-                >
-                  {e}
-                </button>
+            <div className="space-y-4">
+              {EMOJI_CATEGORIES.map((cat) => (
+                <div key={cat.label}>
+                  <span className="text-xs text-text-muted font-medium uppercase tracking-wider">
+                    {cat.label}
+                  </span>
+                  <div className="flex flex-wrap gap-2 mt-1.5">
+                    {cat.emojis.map((e) => (
+                      <button
+                        key={e}
+                        type="button"
+                        onClick={() => setEmoji(e)}
+                        className={`w-14 h-14 rounded-2xl text-2xl flex items-center justify-center transition-all duration-200 ${
+                          emoji === e
+                            ? "bg-primary/10 ring-2 ring-primary scale-110 shadow-md shadow-primary/10"
+                            : "bg-fill hover:bg-separator/80 hover:scale-105 active:scale-95"
+                        }`}
+                      >
+                        {e}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
+
+          <div className="border-t border-separator/60" />
 
           <Input
             label="Название"
