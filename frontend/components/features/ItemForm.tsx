@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -66,26 +66,15 @@ export default function ItemForm({
     defaultValues: defaultValues || {},
   });
 
-  // eslint-disable-next-line react-hooks/incompatible-library -- RHF watch() is intentionally non-memoizable
-  const urlValue = watch("url");
-
-  // Auto-fill from URL with debounce
-  useEffect(() => {
-    if (!urlValue || defaultValues?.title || getValues("title")) return;
-
-    try {
-      new URL(urlValue);
-    } catch {
-      return;
-    }
-
-    // Don't re-parse the same URL
-    if (lastParsedUrl.current === urlValue) return;
+  // Auto-fill from URL — event-driven, no useEffect dependency loops
+  const triggerAutofill = (url: string) => {
+    if (!url || getValues("title") || lastParsedUrl.current === url) return;
+    try { new URL(url); } catch { return; }
 
     clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
-      lastParsedUrl.current = urlValue;
-      parseUrl.mutate(urlValue, {
+      lastParsedUrl.current = url;
+      parseUrl.mutate(url, {
         onSuccess: (data) => {
           if (data.title && !getValues("title")) {
             setValue("title", data.title);
@@ -100,10 +89,9 @@ export default function ItemForm({
         },
       });
     }, 500);
+  };
 
-    return () => clearTimeout(debounceTimer.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- parseUrl.mutate is stable, avoid loop from parseUrl object
-  }, [urlValue]);
+  const urlRegistration = register("url");
 
   const handleFormSubmit = (data: FormData) => {
     onSubmit({
@@ -126,7 +114,11 @@ export default function ItemForm({
             label="Ссылка на товар"
             placeholder="https://... (данные подтянутся автоматически)"
             error={errors.url?.message}
-            {...register("url")}
+            {...urlRegistration}
+            onChange={(e) => {
+              urlRegistration.onChange(e);
+              triggerAutofill(e.target.value);
+            }}
           />
           {parseUrl.isPending && (
             <div className="absolute right-3 top-8 flex items-center gap-1.5 text-primary">

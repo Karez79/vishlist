@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import re
@@ -135,36 +134,18 @@ async def _parse_wildberries(url: str) -> ParseUrlResponse | None:
 
     image_url = f"{base}/images/big/1.webp"
     title = None
-    price = None
 
     try:
         async with httpx.AsyncClient(timeout=5) as client:
-            card_resp, price_resp = await asyncio.gather(
-                client.get(f"{base}/info/ru/card.json"),
-                client.get(f"{base}/info/price-history.json"),
-                return_exceptions=True,
-            )
+            card_resp = await client.get(f"{base}/info/ru/card.json")
 
-            # Extract title from card.json
-            if isinstance(card_resp, httpx.Response) and card_resp.status_code == 200:
+            if card_resp.status_code == 200:
                 try:
                     data = json.JSONDecoder().raw_decode(card_resp.text)[0]
                     title = data.get("imt_name")
                     if title and len(title) > 200:
                         title = title[:200]
                 except (json.JSONDecodeError, IndexError):
-                    pass
-
-            # Extract latest price from price-history.json (prices in kopecks)
-            if isinstance(price_resp, httpx.Response) and price_resp.status_code == 200:
-                try:
-                    history = price_resp.json()
-                    if history and isinstance(history, list):
-                        last_entry = history[-1]
-                        rub_kopecks = last_entry.get("price", {}).get("RUB")
-                        if rub_kopecks and isinstance(rub_kopecks, int):
-                            price = rub_kopecks // 100
-                except (json.JSONDecodeError, KeyError, IndexError):
                     pass
     except Exception:
         logger.debug("WB CDN fetch failed for %s", nm_id)
@@ -173,7 +154,7 @@ async def _parse_wildberries(url: str) -> ParseUrlResponse | None:
         title=title,
         image_url=image_url,
         description=None,
-        price=price,
+        price=None,
     )
 
 
