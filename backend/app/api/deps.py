@@ -22,6 +22,12 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             yield session
 
 
+async def get_db_readonly() -> AsyncGenerator[AsyncSession, None]:
+    """Read-only session without an explicit transaction."""
+    async with async_session() as session:
+        yield session
+
+
 async def get_current_user(
     db: AsyncSession = Depends(get_db),
     token: Optional[str] = Depends(oauth2_scheme),
@@ -52,6 +58,24 @@ async def get_current_user_optional(
     db: AsyncSession = Depends(get_db),
     token: Optional[str] = Depends(oauth2_scheme),
 ) -> Optional[User]:
+    if not token:
+        return None
+    payload = decode_access_token(token)
+    if not payload:
+        return None
+    try:
+        user_id = UUID(payload["sub"])
+    except (ValueError, KeyError):
+        return None
+    result = await db.execute(select(User).where(User.id == user_id))
+    return result.scalar_one_or_none()
+
+
+async def get_current_user_optional_readonly(
+    db: AsyncSession = Depends(get_db_readonly),
+    token: Optional[str] = Depends(oauth2_scheme),
+) -> Optional[User]:
+    """Same as get_current_user_optional but uses a read-only session."""
     if not token:
         return None
     payload = decode_access_token(token)

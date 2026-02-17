@@ -40,6 +40,23 @@ def is_private_ip(hostname: str) -> bool:
         return False
 
 
+def _validate_redirect(response: httpx.Response) -> None:
+    """Block redirects to private/internal IPs (SSRF protection)."""
+    if response.is_redirect and response.next_request:
+        target = response.next_request.url
+        hostname = target.host or ""
+        if hostname in BLOCKED_HOSTS or is_private_ip(hostname):
+            raise httpx.TooManyRedirects(
+                "Redirect to private IP blocked",
+                request=response.request,
+            )
+        if target.scheme not in ("http", "https"):
+            raise httpx.TooManyRedirects(
+                "Redirect to non-HTTP scheme blocked",
+                request=response.request,
+            )
+
+
 def extract_price(text: str | None) -> int | None:
     if not text:
         return None
@@ -90,6 +107,7 @@ async def parse_url(
             follow_redirects=True,
             timeout=URL_PARSER_TIMEOUT,
             max_redirects=3,
+            event_hooks={"response": [_validate_redirect]},
         ) as client:
             response = await client.get(
                 url,
@@ -118,6 +136,11 @@ async def parse_url(
         raise HTTPException(
             status_code=status.HTTP_408_REQUEST_TIMEOUT,
             detail="Превышено время ожидания",
+        )
+    except httpx.TooManyRedirects:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Недопустимый адрес",
         )
     except httpx.RequestError:
         raise HTTPException(

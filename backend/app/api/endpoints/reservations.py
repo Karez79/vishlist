@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user_optional, get_db, get_wishlist_slug
 from app.core.config import settings
+from app.core.constants import CONTRIBUTE_RATE_LIMIT, RESERVE_RATE_LIMIT
 from app.core.limiter import limiter
 from app.core.security import create_guest_recovery_token, decode_guest_recovery_token
 from app.models.contribution import ItemContribution
@@ -75,7 +76,9 @@ async def verify_not_owner(item: WishlistItem, user: Optional[User], db: AsyncSe
 # --- RESERVATION ---
 
 @router.post("/items/{item_id}/reserve", status_code=status.HTTP_201_CREATED)
+@limiter.limit(RESERVE_RATE_LIMIT)
 async def reserve_item(
+    request: Request,
     item_id: uuid.UUID,
     data: ReserveRequest,
     x_guest_token: Optional[str] = Header(None),
@@ -221,7 +224,9 @@ async def update_reservation_email(
 # --- CONTRIBUTIONS ---
 
 @router.post("/items/{item_id}/contribute", status_code=status.HTTP_201_CREATED)
+@limiter.limit(CONTRIBUTE_RATE_LIMIT)
 async def contribute_to_item(
+    request: Request,
     item_id: uuid.UUID,
     data: ContributeRequest,
     x_guest_token: Optional[str] = Header(None),
