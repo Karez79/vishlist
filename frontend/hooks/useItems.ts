@@ -113,7 +113,30 @@ export function useReorderItems(wishlistId: string) {
     mutationFn: async (items: { id: string; position: number }[]) => {
       await apiClient.patch(`/wishlists/${wishlistId}/items/reorder`, { items });
     },
-    onSuccess: () => {
+    onMutate: async (newOrder) => {
+      await queryClient.cancelQueries({ queryKey: ["items", wishlistId] });
+      const previous = queryClient.getQueryData<PaginatedResponse<WishlistItem>>(
+        ["items", wishlistId, 1]
+      );
+      if (previous) {
+        const sorted = [...previous.items].sort((a, b) => {
+          const posA = newOrder.find((o) => o.id === a.id)?.position ?? a.position;
+          const posB = newOrder.find((o) => o.id === b.id)?.position ?? b.position;
+          return posA - posB;
+        });
+        queryClient.setQueryData(["items", wishlistId, 1], {
+          ...previous,
+          items: sorted,
+        });
+      }
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["items", wishlistId, 1], context.previous);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["items", wishlistId] });
     },
   });

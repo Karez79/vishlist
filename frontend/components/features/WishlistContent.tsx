@@ -58,9 +58,11 @@ export default function WishlistContent({
   const { setToken } = useGuestToken(slug);
 
   // Handle recovery link from email (?recovery=token)
+  const recoveryHandled = useRef(false);
   useEffect(() => {
     const recoveryToken = searchParams.get("recovery");
-    if (!recoveryToken) return;
+    if (!recoveryToken || recoveryHandled.current) return;
+    recoveryHandled.current = true;
 
     (async () => {
       try {
