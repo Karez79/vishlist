@@ -15,7 +15,13 @@ export const metadata: Metadata = {
     template: "%s | Vishlist",
   },
   description:
-    "Создавайте списки желаний и делитесь ими с друзьями. Друзья смогут зарезервировать подарки и скинуться на дорогие.",
+    "Создавайте списки желаний и делитесь ими с друзьями.",
+  openGraph: {
+    title: "Vishlist — Социальный вишлист",
+    description: "Создавайте списки желаний и делитесь ими с друзьями.",
+    siteName: "Vishlist",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

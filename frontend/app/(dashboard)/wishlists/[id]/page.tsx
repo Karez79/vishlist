@@ -130,21 +130,18 @@ export default function WishlistEditPage() {
       </button>
 
       {/* Wishlist header */}
-      <div className="flex items-start justify-between mb-8 bg-surface rounded-3xl border border-separator/60 p-5">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-primary/8 flex items-center justify-center text-2xl flex-shrink-0">
-            {wishlist.emoji}
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">{wishlist.title}</h1>
-            {wishlist.description && (
-              <p className="text-text-muted text-sm mt-0.5">
-                {wishlist.description}
-              </p>
-            )}
-          </div>
+      <div className="flex items-center gap-4 mb-8 bg-surface rounded-3xl border border-separator/60 p-5">
+        <div className="w-14 h-14 rounded-2xl bg-primary/8 flex items-center justify-center text-2xl flex-shrink-0">
+          {wishlist.emoji}
         </div>
-        <ShareButton slug={wishlist.slug} />
+        <div>
+          <h1 className="text-xl font-bold tracking-tight">{wishlist.title}</h1>
+          {wishlist.description && (
+            <p className="text-text-muted text-sm mt-0.5">
+              {wishlist.description}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Items section */}
@@ -155,10 +152,13 @@ export default function WishlistEditPage() {
             {items.length}
           </span>
         </h2>
-        <Button size="sm" onClick={() => setAddFormOpen(true)}>
-          <Plus size={16} className="mr-1" />
-          Добавить
-        </Button>
+        <div className="flex items-center gap-2">
+          <ShareButton slug={wishlist.slug} title={wishlist.title} />
+          <Button size="sm" onClick={() => setAddFormOpen(true)}>
+            <Plus size={16} className="mr-1" />
+            Добавить
+          </Button>
+        </div>
       </div>
 
       {items.length === 0 ? (

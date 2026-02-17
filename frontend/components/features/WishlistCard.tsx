@@ -53,7 +53,7 @@ export default function WishlistCard({
           </h3>
           {!wishlist.is_archived && (
             <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-              <ShareButton slug={wishlist.slug} variant="ghost" size="sm" />
+              <ShareButton slug={wishlist.slug} title={wishlist.title} variant="ghost" size="sm" />
             </div>
           )}
         </div>

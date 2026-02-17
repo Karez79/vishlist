@@ -6,12 +6,14 @@ import { Button } from "@/components/ui";
 
 interface ShareButtonProps {
   slug: string;
+  title?: string;
   variant?: "primary" | "secondary" | "ghost";
   size?: "sm" | "md";
 }
 
 export default function ShareButton({
   slug,
+  title,
   variant = "secondary",
   size = "sm",
 }: ShareButtonProps) {
@@ -23,7 +25,11 @@ export default function ShareButton({
   const handleShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Vishlist", url });
+        await navigator.share({
+          title: title || "Vishlist",
+          text: title ? `Смотри мой вишлист «${title}»` : undefined,
+          url,
+        });
       } catch {
         // User cancelled share
       }

@@ -206,7 +206,7 @@ export default function WishlistContent({
             <span className="font-medium">Vishlist</span>
           </Link>
           <div className="lg:hidden">
-            <ShareButton slug={wishlist.slug} />
+            <ShareButton slug={wishlist.slug} title={wishlist.title} />
           </div>
         </div>
 
@@ -239,7 +239,7 @@ export default function WishlistContent({
               )}
 
               <div className="hidden lg:block mt-5 pt-5 border-t border-separator/60">
-                <ShareButton slug={wishlist.slug} />
+                <ShareButton slug={wishlist.slug} title={wishlist.title} />
               </div>
             </div>
 
