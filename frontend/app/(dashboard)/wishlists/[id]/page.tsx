@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Plus, Gift } from "lucide-react";
+import { ArrowLeft, Plus, Gift, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import {
   DndContext,
@@ -23,6 +23,7 @@ import { Button, EmptyState, Skeleton } from "@/components/ui";
 import SortableItemCard from "@/components/features/SortableItemCard";
 import ItemForm from "@/components/features/ItemForm";
 import ShareButton from "@/components/features/ShareButton";
+import WishlistEditModal from "@/components/features/WishlistEditModal";
 import { useWishlist } from "@/hooks/useWishlists";
 import {
   useItems,
@@ -48,6 +49,7 @@ export default function WishlistEditPage() {
 
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [editWishlistOpen, setEditWishlistOpen] = useState(false);
 
   const items = itemsData?.items || [];
   const currentEditItem = items.find((i) => i.id === editingItem);
@@ -134,7 +136,7 @@ export default function WishlistEditPage() {
         <div className="w-14 h-14 rounded-2xl bg-primary/8 flex items-center justify-center text-2xl flex-shrink-0">
           {wishlist.emoji}
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <h1 className="text-xl font-bold tracking-tight">{wishlist.title}</h1>
           {wishlist.description && (
             <p className="text-text-muted text-sm mt-0.5">
@@ -142,6 +144,13 @@ export default function WishlistEditPage() {
             </p>
           )}
         </div>
+        <button
+          onClick={() => setEditWishlistOpen(true)}
+          className="flex-shrink-0 p-2.5 rounded-xl text-text-muted hover:text-text hover:bg-fill transition-all"
+          title="Редактировать вишлист"
+        >
+          <Pencil size={18} />
+        </button>
       </div>
 
       {/* Items section */}
@@ -225,6 +234,15 @@ export default function WishlistEditPage() {
             );
           }}
           loading={updateItem.isPending}
+        />
+      )}
+
+      {/* Edit wishlist modal */}
+      {wishlist && (
+        <WishlistEditModal
+          open={editWishlistOpen}
+          onOpenChange={setEditWishlistOpen}
+          wishlist={wishlist}
         />
       )}
     </div>
