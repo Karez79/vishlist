@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 
 class ReserveRequest(BaseModel):
@@ -34,9 +34,9 @@ class ContributeResponse(BaseModel):
 
 
 class GuestRecoverRequest(BaseModel):
-    email: str = Field(max_length=255)
-    wishlist_slug: str = Field(max_length=150)
+    email: EmailStr = Field(max_length=255)
+    wishlist_slug: str = Field(max_length=150, pattern=r"^[a-z0-9][a-z0-9-]*$")
 
 
 class GuestVerifyRequest(BaseModel):
-    token: str = Field(max_length=2000)
+    token: str = Field(min_length=1, max_length=2000)

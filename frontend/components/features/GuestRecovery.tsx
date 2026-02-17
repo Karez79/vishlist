@@ -1,24 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import { toast } from "sonner";
 import { Button, Input, Modal } from "@/components/ui";
 import { useGuestToken } from "@/hooks/useGuestToken";
 import apiClient from "@/lib/api-client";
+import { getErrorMessage } from "@/lib/utils";
 
 interface GuestRecoveryProps {
   slug: string;
-}
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (axios.isAxiosError(error)) {
-    if (!error.response) return "Нет подключения к серверу";
-    if (error.response.status === 429) return "Слишком много попыток. Попробуйте позже.";
-    const detail = error.response.data?.detail;
-    if (typeof detail === "string") return detail;
-  }
-  return fallback;
 }
 
 export default function GuestRecovery({ slug }: GuestRecoveryProps) {
