@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Gift } from "lucide-react";
 import { toast } from "sonner";
 import {
   DndContext,
@@ -93,10 +93,17 @@ export default function WishlistEditPage() {
 
   if (wishlistLoading) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <Skeleton className="h-8 w-48 mb-6" />
-        <Skeleton className="h-24 mb-4" />
-        <Skeleton className="h-24 mb-4" />
+      <div className="max-w-2xl mx-auto pt-4">
+        <Skeleton className="h-6 w-20 mb-8 rounded-xl" />
+        <div className="flex items-center gap-4 mb-8">
+          <Skeleton className="w-16 h-16 rounded-3xl" />
+          <div>
+            <Skeleton className="h-7 w-48 mb-2" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        </div>
+        <Skeleton className="h-28 mb-3 rounded-3xl" />
+        <Skeleton className="h-28 mb-3 rounded-3xl" />
       </div>
     );
   }
@@ -112,35 +119,41 @@ export default function WishlistEditPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="flex items-center gap-1 text-text-muted hover:text-text transition-colors"
-        >
-          <ArrowLeft size={18} />
-          Назад
-        </button>
-        <ShareButton slug={wishlist.slug} />
-      </div>
+    <div className="max-w-2xl mx-auto pt-4">
+      {/* Back button */}
+      <button
+        onClick={() => router.push("/dashboard")}
+        className="flex items-center gap-1.5 text-text-muted hover:text-text transition-colors text-sm mb-8"
+      >
+        <ArrowLeft size={16} />
+        Назад
+      </button>
 
-      <div className="flex items-center gap-3 mb-6">
-        <span className="text-3xl">{wishlist.emoji}</span>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{wishlist.title}</h1>
-          {wishlist.description && (
-            <p className="text-text-muted text-sm mt-0.5">
-              {wishlist.description}
-            </p>
-          )}
+      {/* Wishlist header */}
+      <div className="flex items-start justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-3xl bg-primary/8 flex items-center justify-center text-3xl flex-shrink-0">
+            {wishlist.emoji}
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{wishlist.title}</h1>
+            {wishlist.description && (
+              <p className="text-text-muted text-sm mt-0.5">
+                {wishlist.description}
+              </p>
+            )}
+          </div>
         </div>
+        <ShareButton slug={wishlist.slug} />
       </div>
 
       {/* Items section */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-text">
-          Желания ({items.length})
+          Желания
+          <span className="text-text-muted font-normal ml-1.5">
+            {items.length}
+          </span>
         </h2>
         <Button size="sm" onClick={() => setAddFormOpen(true)}>
           <Plus size={16} className="mr-1" />
@@ -149,12 +162,15 @@ export default function WishlistEditPage() {
       </div>
 
       {items.length === 0 ? (
-        <EmptyState
-          title="Здесь пока пусто"
-          description="Добавьте первое желание. Можно вставить ссылку — название и картинка подтянутся автоматически"
-          actionLabel="Добавить первое желание"
-          onAction={() => setAddFormOpen(true)}
-        />
+        <div className="bg-surface rounded-3xl border border-separator/60 p-8">
+          <EmptyState
+            icon={<Gift size={40} />}
+            title="Здесь пока пусто"
+            description="Добавьте первое желание — вставьте ссылку, и название с картинкой подтянутся автоматически"
+            actionLabel="Добавить первое желание"
+            onAction={() => setAddFormOpen(true)}
+          />
+        </div>
       ) : (
         <DndContext
           sensors={sensors}

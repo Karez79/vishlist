@@ -25,12 +25,12 @@ export default function ItemCard({
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="flex gap-3 bg-surface rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.06)] p-4 transition-shadow duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] group">
+    <div className="flex gap-4 bg-surface rounded-3xl border border-separator/60 p-4 transition-all duration-200 hover:border-primary/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] group">
       {/* Drag handle (owner only) */}
       {isOwner && dragHandleProps && (
         <div
           {...dragHandleProps}
-          className="flex items-center text-gray-300 hover:text-gray-400 cursor-grab active:cursor-grabbing"
+          className="flex items-center text-separator hover:text-text-muted cursor-grab active:cursor-grabbing transition-colors"
         >
           <GripVertical size={20} />
         </div>
@@ -74,26 +74,26 @@ export default function ItemCard({
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-text-muted hover:text-primary transition-colors"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary-light transition-colors"
               onClick={(e) => e.stopPropagation()}
-              aria-label="Открыть ссылку"
             >
-              <ExternalLink size={14} />
+              <ExternalLink size={12} />
+              Ссылка
             </a>
           )}
         </div>
 
         {item.note && (
-          <p className="text-xs text-text-muted mt-1 line-clamp-1">{item.note}</p>
+          <p className="text-xs text-text-muted mt-1.5 line-clamp-1">{item.note}</p>
         )}
 
         {/* Owner actions */}
         {isOwner && (
-          <div className="flex items-center gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 mt-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="text-xs text-text-muted hover:text-text flex items-center gap-1 transition-colors"
+                className="text-xs text-text-muted hover:text-text hover:bg-fill flex items-center gap-1 px-2 py-1 rounded-lg transition-all"
               >
                 <Pencil size={12} /> Редактировать
               </button>
@@ -101,7 +101,7 @@ export default function ItemCard({
             {onDelete && (
               <button
                 onClick={onDelete}
-                className="text-xs text-error/70 hover:text-error flex items-center gap-1 transition-colors"
+                className="text-xs text-error/60 hover:text-error hover:bg-error/5 flex items-center gap-1 px-2 py-1 rounded-lg transition-all"
               >
                 <Trash2 size={12} /> Удалить
               </button>
