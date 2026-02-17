@@ -25,7 +25,7 @@ export default function ItemCard({
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="flex gap-3 bg-surface rounded-2xl border border-gray-100 shadow-sm p-4 transition-all duration-200 hover:shadow-md group">
+    <div className="flex gap-3 bg-surface rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.06)] p-4 transition-shadow duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] group">
       {/* Drag handle (owner only) */}
       {isOwner && dragHandleProps && (
         <div
@@ -37,7 +37,7 @@ export default function ItemCard({
       )}
 
       {/* Image */}
-      <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-rose-50 to-orange-50">
+      <div className="relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-fill">
         {item.image_url && !imgError ? (
           <Image
             src={item.image_url}
@@ -65,7 +65,7 @@ export default function ItemCard({
 
         <div className="flex items-center gap-3 mt-1.5">
           {item.price != null && (
-            <span className="text-sm font-semibold text-primary">
+            <span className="text-sm font-semibold text-text">
               {formatPrice(item.price)}
             </span>
           )}

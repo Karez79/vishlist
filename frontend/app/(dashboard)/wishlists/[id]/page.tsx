@@ -128,7 +128,7 @@ export default function WishlistEditPage() {
       <div className="flex items-center gap-3 mb-6">
         <span className="text-3xl">{wishlist.emoji}</span>
         <div>
-          <h1 className="text-2xl font-heading font-bold">{wishlist.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{wishlist.title}</h1>
           {wishlist.description && (
             <p className="text-text-muted text-sm mt-0.5">
               {wishlist.description}

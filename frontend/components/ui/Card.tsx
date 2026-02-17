@@ -14,9 +14,9 @@ export default function Card({
   return (
     <div
       className={cn(
-        "bg-surface rounded-2xl border border-gray-100 shadow-sm p-5",
+        "bg-surface rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.06)] p-6",
         hoverable &&
-          "transition-all duration-200 hover:-translate-y-1 hover:shadow-md cursor-pointer",
+          "transition-shadow duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] cursor-pointer",
         className
       )}
       {...props}

@@ -62,7 +62,7 @@ export default async function PublicWishlistPage({
       <div className="min-h-screen flex items-center justify-center bg-bg">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-6xl mb-4">😔</div>
-          <h1 className="text-2xl font-heading font-bold mb-2">
+          <h1 className="text-2xl font-bold tracking-tight mb-2">
             Этот вишлист был удалён
           </h1>
           <p className="text-text-muted mb-6">
@@ -70,7 +70,7 @@ export default async function PublicWishlistPage({
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl font-medium hover:bg-primary-light transition-colors"
           >
             На главную
           </Link>

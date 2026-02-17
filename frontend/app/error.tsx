@@ -13,7 +13,7 @@ export default function Error({
     <div className="min-h-screen flex items-center justify-center bg-bg">
       <div className="text-center max-w-md mx-auto px-4">
         <div className="text-6xl mb-4">😵</div>
-        <h2 className="text-2xl font-heading font-bold mb-2">
+        <h2 className="text-2xl font-bold tracking-tight mb-2">
           Что-то пошло не так
         </h2>
         <p className="text-text-muted mb-6">

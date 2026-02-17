@@ -53,7 +53,7 @@ export default function ContributeModal({
         particleCount: 80,
         spread: 60,
         origin: { y: 0.6 },
-        colors: ["#C44569", "#FF9A56", "#FF6B9D", "#FFF8F0"],
+        colors: ["#007AFF", "#5856D6", "#34C759", "#FF9F0A"],
       });
     } catch {
       // Error handled by mutation
@@ -94,7 +94,7 @@ export default function ContributeModal({
     >
       {step === "form" ? (
         <div className="space-y-4">
-          <div className="bg-gray-50 rounded-xl p-3 text-sm">
+          <div className="bg-fill rounded-2xl p-3 text-sm">
             <p className="text-text-muted">
               Собрано {formatPrice(totalContributed)} из{" "}
               {formatPrice(price)} ({pct}%)
@@ -139,10 +139,10 @@ export default function ContributeModal({
                 key={preset}
                 type="button"
                 onClick={() => setAmount(String(preset))}
-                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                className={`px-3 py-1.5 text-sm rounded-2xl border transition-all duration-150 ${
                   amount === String(preset)
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-gray-200 text-text-muted hover:border-gray-300"
+                    ? "border-primary bg-primary text-white"
+                    : "border-separator text-text-muted hover:border-text-muted"
                 }`}
               >
                 {formatPrice(preset)}
@@ -151,10 +151,10 @@ export default function ContributeModal({
             <button
               type="button"
               onClick={() => setAmount(String(remaining))}
-              className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+              className={`px-3 py-1.5 text-sm rounded-2xl border transition-all duration-150 ${
                 amount === String(remaining)
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-gray-200 text-text-muted hover:border-gray-300"
+                  ? "border-primary bg-primary text-white"
+                  : "border-separator text-text-muted hover:border-text-muted"
               }`}
             >
               Вся сумма
@@ -176,13 +176,13 @@ export default function ContributeModal({
       ) : (
         <div className="text-center space-y-4">
           <div className="text-4xl mb-2">💝</div>
-          <h3 className="text-lg font-heading font-bold">Спасибо!</h3>
+          <h3 className="text-lg font-bold tracking-tight">Спасибо!</h3>
           <p className="text-text-muted text-sm">
             Вы внесли {formatPrice(numAmount)} на «{itemTitle}»
           </p>
 
           {!userName && onSaveEmail && (
-            <div className="mt-6 pt-4 border-t border-gray-100">
+            <div className="mt-6 pt-4 border-t border-separator">
               <p className="text-sm text-text-muted mb-3">
                 Куда отправить подтверждение?
               </p>

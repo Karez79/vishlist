@@ -58,7 +58,7 @@ export default function NewWishlistPage() {
         Назад
       </button>
 
-      <h1 className="text-2xl font-heading font-bold mb-6">
+      <h1 className="text-2xl font-bold tracking-tight mb-6">
         Новый вишлист
       </h1>
 
@@ -74,10 +74,10 @@ export default function NewWishlistPage() {
                 key={e}
                 type="button"
                 onClick={() => setEmoji(e)}
-                className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all ${
+                className={`w-10 h-10 rounded-2xl text-xl flex items-center justify-center transition-all ${
                   emoji === e
                     ? "bg-primary/10 ring-2 ring-primary scale-110"
-                    : "bg-gray-50 hover:bg-gray-100"
+                    : "bg-fill hover:bg-separator"
                 }`}
               >
                 {e}
@@ -105,7 +105,7 @@ export default function NewWishlistPage() {
             id="description"
             rows={3}
             placeholder="Расскажите друзьям о событии..."
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-surface text-text placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 resize-none"
+            className="w-full px-4 py-2.5 rounded-2xl bg-fill text-text border border-transparent placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-surface transition-all duration-200 resize-none"
             {...register("description")}
           />
         </div>

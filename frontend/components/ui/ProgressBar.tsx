@@ -18,12 +18,12 @@ export default function ProgressBar({
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+      <div className="h-2 bg-fill rounded-full overflow-hidden">
         <div
           className={cn(
             "h-full rounded-full transition-all duration-800 ease-out",
-            "bg-gradient-to-r from-gold to-primary",
-            isComplete && "animate-pulse"
+            "bg-primary",
+            isComplete && "bg-success"
           )}
           style={{ width: `${percentage}%` }}
         />

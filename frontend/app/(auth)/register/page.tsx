@@ -49,7 +49,7 @@ export default function RegisterPage() {
     <main className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-heading font-bold text-primary mb-2">
+          <h1 className="text-3xl font-bold tracking-tight text-text mb-2">
             Регистрация
           </h1>
           <p className="text-text-muted">Создайте аккаунт для управления вишлистами</p>
@@ -89,9 +89,9 @@ export default function RegisterPage() {
         {GOOGLE_AUTH_ENABLED && (
           <>
             <div className="flex items-center my-6">
-              <div className="flex-1 border-t border-gray-200" />
+              <div className="flex-1 border-t border-separator" />
               <span className="px-3 text-sm text-text-muted">или</span>
-              <div className="flex-1 border-t border-gray-200" />
+              <div className="flex-1 border-t border-separator" />
             </div>
             <Button
               variant="secondary"

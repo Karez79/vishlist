@@ -90,7 +90,7 @@ export default function ImageUpload({
   if (value) {
     return (
       <div className={cn("relative w-full", className)}>
-        <div className="relative w-full h-32 rounded-xl overflow-hidden border border-gray-200">
+        <div className="relative w-full h-32 rounded-2xl overflow-hidden border border-separator">
           <Image
             src={value}
             alt="Preview"
@@ -122,10 +122,10 @@ export default function ImageUpload({
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
         className={cn(
-          "flex flex-col items-center justify-center gap-2 w-full h-28 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-200",
+          "flex flex-col items-center justify-center gap-2 w-full h-28 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200",
           dragOver
             ? "border-primary bg-primary/5"
-            : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
+            : "border-separator hover:border-primary/50 hover:bg-fill"
         )}
       >
         {uploading ? (

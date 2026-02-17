@@ -18,7 +18,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   reserved: "bg-reserved/10 text-reserved",
   collecting: "bg-gold/10 text-gold",
   collected: "bg-success/10 text-success",
-  archived: "bg-gray-100 text-text-muted",
+  archived: "bg-fill text-text-muted",
 };
 
 export default function Badge({ variant, children, className }: BadgeProps) {

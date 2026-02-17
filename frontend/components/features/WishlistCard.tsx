@@ -73,7 +73,7 @@ export default function WishlistCard({
 
       {/* Action buttons row */}
       <div
-        className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100"
+        className="flex items-center gap-2 mt-3 pt-3 border-t border-separator"
         onClick={(e) => e.stopPropagation()}
       >
         {onArchiveToggle && (

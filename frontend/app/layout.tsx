@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import Providers from "@/lib/providers";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
-  subsets: ["latin", "cyrillic"],
-});
-
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair-display",
   subsets: ["latin", "cyrillic"],
 });
 
@@ -31,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body
-        className={`${inter.variable} ${playfairDisplay.variable} font-body antialiased`}
+        className={`${inter.variable} font-body antialiased`}
       >
         <Providers>
           {children}
@@ -41,9 +36,9 @@ export default function RootLayout({
           toastOptions={{
             style: {
               background: "#FFFFFF",
-              border: "1px solid #F0E6DC",
-              borderRadius: "12px",
-              color: "#2D3436",
+              border: "1px solid #E5E5EA",
+              borderRadius: "16px",
+              color: "#1D1D1F",
             },
           }}
         />

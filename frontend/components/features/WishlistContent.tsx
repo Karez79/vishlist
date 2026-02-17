@@ -180,9 +180,9 @@ export default function WishlistContent({
     <div className="min-h-screen bg-bg">
       {/* Owner banner */}
       {wishlist.is_owner && (
-        <div className="bg-primary/10 border-b border-primary/20">
+        <div className="bg-fill border-b border-separator">
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-            <span className="text-sm text-primary font-medium">
+            <span className="text-sm text-text-muted font-medium">
               Это ваш вишлист
             </span>
             <Link
@@ -210,7 +210,7 @@ export default function WishlistContent({
         {/* Wishlist info */}
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">{wishlist.emoji}</div>
-          <h1 className="text-3xl font-heading font-bold mb-1">
+          <h1 className="text-3xl font-bold tracking-tight mb-1">
             {wishlist.title}
           </h1>
           {wishlist.description && (
