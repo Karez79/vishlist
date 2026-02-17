@@ -38,10 +38,12 @@ export default function RootLayout({
             style: {
               background: "#FFFFFF",
               border: "1px solid #E5E5EA",
-              borderRadius: "16px",
+              borderRadius: "20px",
               color: "#1D1D1F",
               boxShadow: "0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
-              fontSize: "14px",
+              fontSize: "15px",
+              padding: "14px 20px",
+              fontWeight: "500",
             },
           }}
         />

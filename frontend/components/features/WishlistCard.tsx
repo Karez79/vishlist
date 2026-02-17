@@ -87,26 +87,26 @@ export default function WishlistCard({
         >
           {onArchiveToggle && (
             <button
-              className="text-xs text-text-muted hover:text-text flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl hover:bg-fill transition-all"
+              className="text-sm text-text-muted hover:text-text flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-fill transition-all active:scale-95"
               onClick={() => onArchiveToggle(wishlist.id, !wishlist.is_archived)}
             >
               {wishlist.is_archived ? (
                 <>
-                  <ArchiveRestore size={13} /> Разархивировать
+                  <ArchiveRestore size={16} /> Разархивировать
                 </>
               ) : (
                 <>
-                  <Archive size={13} /> В архив
+                  <Archive size={16} /> В архив
                 </>
               )}
             </button>
           )}
           {onDelete && (
             <button
-              className="text-xs text-error/60 hover:text-error hover:bg-error/5 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl ml-auto transition-all"
+              className="text-sm text-error/60 hover:text-error hover:bg-error/5 flex items-center gap-2 px-3 py-2 rounded-xl ml-auto transition-all active:scale-95"
               onClick={() => onDelete(wishlist.id)}
             >
-              <Trash2 size={13} /> Удалить
+              <Trash2 size={16} /> Удалить
             </button>
           )}
         </div>
