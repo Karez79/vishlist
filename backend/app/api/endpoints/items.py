@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.deps import get_current_user, get_db
 from app.core.constants import DEFAULT_ITEMS_PAGE_SIZE, MAX_ITEMS_PER_WISHLIST
+from app.core.ws_manager import manager
 from app.models.item import WishlistItem
 from app.models.user import User
 from app.models.wishlist import Wishlist
@@ -54,6 +55,13 @@ async def get_owner_wishlist(wishlist_id: UUID, user: User, db: AsyncSession) ->
     return wishlist
 
 
+async def get_wishlist_slug(item: WishlistItem, db: AsyncSession) -> str:
+    result = await db.execute(
+        select(Wishlist.slug).where(Wishlist.id == item.wishlist_id)
+    )
+    return result.scalar_one()
+
+
 @router.get("/wishlists/{wishlist_id}/items", response_model=PaginatedResponse[ItemResponse])
 async def list_items(
     wishlist_id: UUID,
@@ -85,7 +93,7 @@ async def create_item(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    await get_owner_wishlist(wishlist_id, user, db)
+    wishlist = await get_owner_wishlist(wishlist_id, user, db)
 
     # Check limit
     count_result = await db.execute(
@@ -131,6 +139,8 @@ async def create_item(
         )
     )
     item = result.scalar_one()
+
+    await manager.broadcast(wishlist.slug, {"type": "item_added", "item_id": str(item.id)})
     return item_to_response(item)
 
 
@@ -165,6 +175,9 @@ async def update_item(
         setattr(item, field, value)
 
     await db.flush()
+
+    slug = await get_wishlist_slug(item, db)
+    await manager.broadcast(slug, {"type": "item_updated", "item_id": str(item.id)})
     return item_to_response(item)
 
 
@@ -189,6 +202,9 @@ async def delete_item(
 
     item.is_deleted = True
     await db.flush()
+
+    slug = await get_wishlist_slug(item, db)
+    await manager.broadcast(slug, {"type": "item_deleted", "item_id": str(item.id)})
     return {"detail": "Товар удалён"}
 
 
@@ -217,6 +233,9 @@ async def restore_item(
 
     item.is_deleted = False
     await db.flush()
+
+    slug = await get_wishlist_slug(item, db)
+    await manager.broadcast(slug, {"type": "item_added", "item_id": str(item.id)})
     return item_to_response(item)
 
 

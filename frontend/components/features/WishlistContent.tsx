@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Gift } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Gift, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/ui";
 import PublicItemCard from "@/components/features/PublicItemCard";
@@ -22,6 +23,8 @@ import {
 } from "@/hooks/useReservations";
 import { useRealtime } from "@/hooks/useRealtime";
 import { useAuthStore } from "@/lib/store";
+import apiClient from "@/lib/api-client";
+import { getErrorMessage } from "@/lib/utils";
 import type { PublicWishlist, WishlistItem } from "@/types";
 
 interface WishlistContentProps {
@@ -33,15 +36,70 @@ export default function WishlistContent({
   initialData,
   slug,
 }: WishlistContentProps) {
-  const { data } = usePublicWishlist(slug, initialData);
-  const wishlist = data || initialData;
-  const items = wishlist.items_data?.items || [];
+  const searchParams = useSearchParams();
+  const {
+    data,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = usePublicWishlist(slug, initialData);
+
+  // Merge all pages into a single view
+  const firstPage = data?.pages[0] || initialData;
+  const wishlist = firstPage;
+  const items = data?.pages.flatMap((page) => page.items_data.items) || initialData.items_data.items;
+  const totalItems = firstPage.items_data.total;
   const user = useAuthStore((s) => s.user);
 
   // Realtime updates via WebSocket
   useRealtime(slug);
 
   const { setToken } = useGuestToken(slug);
+
+  // Handle recovery link from email (?recovery=token)
+  useEffect(() => {
+    const recoveryToken = searchParams.get("recovery");
+    if (!recoveryToken) return;
+
+    (async () => {
+      try {
+        const { data } = await apiClient.post("/guest/verify", {
+          token: recoveryToken,
+        });
+        setToken(data.guest_token);
+        window.history.replaceState({}, "", `/w/${slug}`);
+        toast.success("Доступ восстановлен!");
+        refetch();
+      } catch (error) {
+        console.error("Recovery verification failed:", error);
+        toast.error(
+          getErrorMessage(error, "Ссылка устарела. Запросите новую")
+        );
+        window.history.replaceState({}, "", `/w/${slug}`);
+      }
+    })();
+  }, [searchParams, slug, setToken, refetch]);
+
+  // Infinite scroll observer
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    const el = loadMoreRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   const reserveItem = useReserveItem(slug);
   const cancelReservation = useCancelReservation(slug);
   const contributeItem = useContributeItem(slug);
@@ -57,7 +115,6 @@ export default function WishlistContent({
       itemId: reserveModalItem.id,
       guestName,
     });
-    // Save guest token for future use
     if (result.guest_token) {
       setToken(result.guest_token);
     }
@@ -157,7 +214,7 @@ export default function WishlistContent({
         {/* Items */}
         <div className="mb-4">
           <h2 className="font-semibold text-text">
-            Желания ({items.length})
+            Желания ({totalItems})
           </h2>
         </div>
 
@@ -168,16 +225,26 @@ export default function WishlistContent({
           />
         ) : (
           <div className="space-y-3">
-            {items.map((item) => (
+            {items.map((item, index) => (
               <PublicItemCard
                 key={item.id}
                 item={item}
                 isOwner={wishlist.is_owner}
+                index={index}
                 onReserve={() => setReserveModalItem(item)}
                 onContribute={() => setContributeModalItem(item)}
                 onCancelReservation={() => handleCancelReservation(item.id)}
               />
             ))}
+          </div>
+        )}
+
+        {/* Infinite scroll trigger */}
+        {hasNextPage && (
+          <div ref={loadMoreRef} className="flex justify-center py-6">
+            {isFetchingNextPage && (
+              <Loader2 size={24} className="animate-spin text-text-muted" />
+            )}
           </div>
         )}
 

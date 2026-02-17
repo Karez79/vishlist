@@ -39,6 +39,18 @@ class ConnectionManager:
         for connection in dead:
             self.disconnect(slug, connection)
 
+    async def close_all(self, slug: str):
+        """Close all connections for a slug and remove from manager."""
+        if slug not in self.active_connections:
+            return
+        for connection in list(self.active_connections[slug]):
+            try:
+                await connection.close()
+            except Exception:
+                pass
+        self.active_connections.pop(slug, None)
+        logger.info("WS closed all connections for: %s", slug)
+
     async def keepalive(self, websocket: WebSocket):
         """Send periodic pings to keep connection alive."""
         try:

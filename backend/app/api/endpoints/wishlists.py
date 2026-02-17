@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_db
 from app.core.constants import DEFAULT_PAGE_SIZE, MAX_WISHLISTS_PER_USER
+from app.core.ws_manager import manager
 from app.models.user import User
 from app.models.wishlist import Wishlist
 from app.models.item import WishlistItem
@@ -179,6 +180,9 @@ async def delete_wishlist(
 
     wishlist.is_deleted = True
     await db.flush()
+
+    await manager.broadcast(wishlist.slug, {"type": "wishlist_deleted"})
+    await manager.close_all(wishlist.slug)
     return {"detail": "Вишлист удалён"}
 
 

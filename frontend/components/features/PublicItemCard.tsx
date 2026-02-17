@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
 import { Badge, Button, ProgressBar } from "@/components/ui";
 import { formatPrice } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
@@ -10,6 +11,7 @@ import type { WishlistItem } from "@/types";
 interface PublicItemCardProps {
   item: WishlistItem;
   isOwner: boolean;
+  index?: number;
   onReserve?: () => void;
   onContribute?: () => void;
   onCancelReservation?: () => void;
@@ -19,6 +21,7 @@ interface PublicItemCardProps {
 export default function PublicItemCard({
   item,
   isOwner,
+  index = 0,
   onReserve,
   onContribute,
   onCancelReservation,
@@ -46,7 +49,12 @@ export default function PublicItemCard({
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-gray-100 shadow-sm p-4 transition-all duration-200 hover:shadow-md">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      className="bg-surface rounded-2xl border border-gray-100 shadow-sm p-4 transition-all duration-200 hover:shadow-md"
+    >
       <div className="flex gap-3">
         {/* Image */}
         <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-rose-50 to-orange-50">
@@ -191,6 +199,6 @@ export default function PublicItemCard({
           ))}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

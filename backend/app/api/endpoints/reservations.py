@@ -25,7 +25,7 @@ from app.schemas.reservation import (
     ReserveResponse,
     UpdateGuestEmailRequest,
 )
-from app.utils.email import send_recovery_email
+from app.utils.email import send_recovery_email, send_reservation_confirmation
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +50,18 @@ async def get_item_for_update(item_id: uuid.UUID, db: AsyncSession) -> WishlistI
     if not item:
         raise HTTPException(status_code=404, detail="Товар не найден")
     return item
+
+
+async def verify_not_archived(item: WishlistItem, db: AsyncSession):
+    """Block actions on archived wishlists."""
+    result = await db.execute(
+        select(Wishlist.is_archived).where(Wishlist.id == item.wishlist_id)
+    )
+    if result.scalar_one():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Вишлист в архиве",
+        )
 
 
 async def verify_not_owner(item: WishlistItem, user: Optional[User], db: AsyncSession):
@@ -78,6 +90,7 @@ async def reserve_item(
 ):
     item = await get_item_for_update(item_id, db)
     await verify_not_owner(item, user, db)
+    await verify_not_archived(item, db)
 
     # Check if already reserved
     existing = await db.execute(
@@ -87,6 +100,7 @@ async def reserve_item(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Этот подарок уже зарезервирован",
+            headers={"X-Error-Code": "already_reserved"},
         )
 
     # Check if item has contributions (can't reserve if collecting)
@@ -99,6 +113,7 @@ async def reserve_item(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="На этот подарок уже идёт сбор средств",
+            headers={"X-Error-Code": "has_contributions"},
         )
 
     guest_token = x_guest_token or str(uuid.uuid4())
@@ -113,7 +128,7 @@ async def reserve_item(
     await db.flush()
 
     slug = await get_wishlist_slug(item, db)
-    await manager.broadcast(slug, {"type": "reservation_created", "item_id": str(item.id)})
+    await manager.broadcast(slug, {"type": "item_reserved", "item_id": str(item.id)})
 
     return ReserveResponse(
         id=str(reservation.id),
@@ -162,7 +177,7 @@ async def cancel_reservation(
     await db.flush()
 
     slug = await get_wishlist_slug(item, db)
-    await manager.broadcast(slug, {"type": "reservation_cancelled", "item_id": str(item.id)})
+    await manager.broadcast(slug, {"type": "item_unreserved", "item_id": str(item.id)})
 
     return {"detail": "Резервация отменена"}
 
@@ -186,6 +201,26 @@ async def update_reservation_email(
 
     reservation.guest_email = data.email.lower().strip()
     await db.flush()
+
+    # Send confirmation email with cancel link
+    item_result = await db.execute(
+        select(WishlistItem).where(WishlistItem.id == reservation.item_id)
+    )
+    item = item_result.scalar_one()
+    slug = await get_wishlist_slug(item, db)
+
+    result_wl = await db.execute(
+        select(Wishlist.title).where(Wishlist.id == item.wishlist_id)
+    )
+    wishlist_title = result_wl.scalar_one()
+
+    cancel_url = f"{settings.FRONTEND_URL}/w/{slug}"
+    await send_reservation_confirmation(
+        to_email=reservation.guest_email,
+        item_title=item.title,
+        wishlist_title=wishlist_title,
+        cancel_url=cancel_url,
+    )
     return {"detail": "Email сохранён"}
 
 
@@ -201,6 +236,7 @@ async def contribute_to_item(
 ):
     item = await get_item_for_update(item_id, db)
     await verify_not_owner(item, user, db)
+    await verify_not_archived(item, db)
 
     if not item.price:
         raise HTTPException(
@@ -216,6 +252,7 @@ async def contribute_to_item(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Этот подарок уже зарезервирован",
+            headers={"X-Error-Code": "already_reserved"},
         )
 
     # Check total contributions don't exceed price
@@ -231,12 +268,14 @@ async def contribute_to_item(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Сумма уже собрана",
+            headers={"X-Error-Code": "fully_funded"},
         )
 
     if data.amount > remaining:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_409_CONFLICT,
             detail=f"Осталось собрать: {remaining} ₽",
+            headers={"X-Error-Code": "amount_exceeded"},
         )
 
     guest_token = x_guest_token or str(uuid.uuid4())
@@ -252,7 +291,7 @@ async def contribute_to_item(
     await db.flush()
 
     slug = await get_wishlist_slug(item, db)
-    await manager.broadcast(slug, {"type": "contribution_created", "item_id": str(item.id)})
+    await manager.broadcast(slug, {"type": "contribution_added", "item_id": str(item.id)})
 
     return ContributeResponse(
         id=str(contribution.id),
@@ -301,7 +340,7 @@ async def delete_contribution(
     await db.flush()
 
     slug = await get_wishlist_slug(item, db)
-    await manager.broadcast(slug, {"type": "contribution_deleted", "item_id": str(item.id)})
+    await manager.broadcast(slug, {"type": "contribution_removed", "item_id": str(item.id)})
 
     return {"detail": "Вклад удалён"}
 

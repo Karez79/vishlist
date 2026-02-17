@@ -1,5 +1,12 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  type InfiniteData,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import apiClient from "@/lib/api-client";
+import type { PublicWishlist } from "@/types";
+
+type InfiniteWishlist = InfiniteData<PublicWishlist, number>;
 
 function getGuestHeaders(slug: string): Record<string, string> {
   if (typeof window === "undefined") return {};
@@ -7,8 +14,28 @@ function getGuestHeaders(slug: string): Record<string, string> {
   return token ? { "X-Guest-Token": token } : {};
 }
 
+function updateItemsInPages(
+  old: InfiniteWishlist,
+  itemId: string,
+  updater: (item: PublicWishlist["items_data"]["items"][0]) => PublicWishlist["items_data"]["items"][0]
+): InfiniteWishlist {
+  return {
+    ...old,
+    pages: old.pages.map((page) => ({
+      ...page,
+      items_data: {
+        ...page.items_data,
+        items: page.items_data.items.map((item) =>
+          item.id === itemId ? updater(item) : item
+        ),
+      },
+    })),
+  };
+}
+
 export function useReserveItem(slug: string) {
   const queryClient = useQueryClient();
+  const queryKey = ["public-wishlist", slug];
 
   return useMutation({
     mutationFn: async ({
@@ -26,14 +53,34 @@ export function useReserveItem(slug: string) {
       );
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["public-wishlist", slug] });
+    onMutate: async ({ itemId }) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<InfiniteWishlist>(queryKey);
+      if (previous) {
+        queryClient.setQueryData<InfiniteWishlist>(
+          queryKey,
+          updateItemsInPages(previous, itemId, (item) => ({
+            ...item,
+            is_reserved: true,
+          }))
+        );
+      }
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKey, context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
 
 export function useCancelReservation(slug: string) {
   const queryClient = useQueryClient();
+  const queryKey = ["public-wishlist", slug];
 
   return useMutation({
     mutationFn: async (itemId: string) => {
@@ -43,14 +90,35 @@ export function useCancelReservation(slug: string) {
       });
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["public-wishlist", slug] });
+    onMutate: async (itemId) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<InfiniteWishlist>(queryKey);
+      if (previous) {
+        queryClient.setQueryData<InfiniteWishlist>(
+          queryKey,
+          updateItemsInPages(previous, itemId, (item) => ({
+            ...item,
+            is_reserved: false,
+            reservation: null,
+          }))
+        );
+      }
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKey, context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }
 
 export function useContributeItem(slug: string) {
   const queryClient = useQueryClient();
+  const queryKey = ["public-wishlist", slug];
 
   return useMutation({
     mutationFn: async ({
@@ -70,8 +138,28 @@ export function useContributeItem(slug: string) {
       );
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["public-wishlist", slug] });
+    onMutate: async ({ itemId, amount }) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<InfiniteWishlist>(queryKey);
+      if (previous) {
+        queryClient.setQueryData<InfiniteWishlist>(
+          queryKey,
+          updateItemsInPages(previous, itemId, (item) => ({
+            ...item,
+            total_contributed: item.total_contributed + amount,
+            contributors_count: item.contributors_count + 1,
+          }))
+        );
+      }
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKey, context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }

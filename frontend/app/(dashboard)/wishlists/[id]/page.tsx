@@ -2,19 +2,35 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Plus, Settings } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Button, EmptyState, Skeleton } from "@/components/ui";
-import ItemCard from "@/components/features/ItemCard";
+import SortableItemCard from "@/components/features/SortableItemCard";
 import ItemForm from "@/components/features/ItemForm";
 import ShareButton from "@/components/features/ShareButton";
-import { useWishlist, useUpdateWishlist } from "@/hooks/useWishlists";
+import { useWishlist } from "@/hooks/useWishlists";
 import {
   useItems,
   useCreateItem,
   useUpdateItem,
   useDeleteItem,
   useRestoreItem,
+  useReorderItems,
 } from "@/hooks/useItems";
 
 export default function WishlistEditPage() {
@@ -28,12 +44,38 @@ export default function WishlistEditPage() {
   const updateItem = useUpdateItem(id);
   const deleteItem = useDeleteItem(id);
   const restoreItem = useRestoreItem(id);
+  const reorderItems = useReorderItems(id);
 
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<string | null>(null);
 
   const items = itemsData?.items || [];
   const currentEditItem = items.find((i) => i.id === editingItem);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = items.findIndex((i) => i.id === active.id);
+    const newIndex = items.findIndex((i) => i.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(items, oldIndex, newIndex);
+    const reorderData = reordered.map((item, index) => ({
+      id: item.id,
+      position: index + 1,
+    }));
+    reorderItems.mutate(reorderData);
+  };
 
   const handleDeleteItem = (itemId: string) => {
     deleteItem.mutate(itemId, {
@@ -114,17 +156,27 @@ export default function WishlistEditPage() {
           onAction={() => setAddFormOpen(true)}
         />
       ) : (
-        <div className="space-y-3">
-          {items.map((item) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              isOwner
-              onEdit={() => setEditingItem(item.id)}
-              onDelete={() => handleDeleteItem(item.id)}
-            />
-          ))}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={items.map((i) => i.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3">
+              {items.map((item) => (
+                <SortableItemCard
+                  key={item.id}
+                  item={item}
+                  onEdit={() => setEditingItem(item.id)}
+                  onDelete={() => handleDeleteItem(item.id)}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {/* Add item form */}
