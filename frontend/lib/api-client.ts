@@ -27,13 +27,16 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor: handle 401 and 500
+// Response interceptor: handle 401 (skip redirect on public pages)
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("auth-storage");
-      window.location.href = "/login";
+      const isPublicPage = window.location.pathname.startsWith("/w/");
+      if (!isPublicPage) {
+        localStorage.removeItem("auth-storage");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }

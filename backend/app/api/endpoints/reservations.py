@@ -89,6 +89,13 @@ async def reserve_item(
     await verify_not_owner(item, user, db)
     await verify_not_archived(item, db)
 
+    # Guest must provide name
+    if not user and not data.guest_name:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Введите ваше имя",
+        )
+
     # Check if already reserved
     existing = await db.execute(
         select(ItemReservation).where(ItemReservation.item_id == item.id)
@@ -118,7 +125,7 @@ async def reserve_item(
     reservation = ItemReservation(
         item_id=item.id,
         user_id=user.id if user else None,
-        guest_name=data.guest_name.strip() if not user else user.name,
+        guest_name=user.name if user else data.guest_name.strip(),
         guest_token=guest_token if not user else None,
     )
     db.add(reservation)
@@ -237,6 +244,13 @@ async def contribute_to_item(
     await verify_not_owner(item, user, db)
     await verify_not_archived(item, db)
 
+    # Guest must provide name
+    if not user and not data.guest_name:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Введите ваше имя",
+        )
+
     if not item.price:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -282,7 +296,7 @@ async def contribute_to_item(
     contribution = ItemContribution(
         item_id=item.id,
         user_id=user.id if user else None,
-        guest_name=data.guest_name.strip() if not user else user.name,
+        guest_name=user.name if user else data.guest_name.strip(),
         guest_token=guest_token if not user else None,
         amount=data.amount,
     )

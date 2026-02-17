@@ -58,6 +58,7 @@ export default function ItemForm({
     reset,
     setValue,
     watch,
+    getValues,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema) as Resolver<FormData>,
@@ -71,7 +72,7 @@ export default function ItemForm({
   // Auto-fill from URL with debounce
   const handleUrlAutofill = useCallback(
     (url: string) => {
-      if (!url || titleValue) return; // Don't overwrite existing title
+      if (!url || getValues("title")) return; // Don't overwrite existing title
 
       try {
         new URL(url);
@@ -83,7 +84,7 @@ export default function ItemForm({
       debounceTimer.current = setTimeout(() => {
         parseUrl.mutate(url, {
           onSuccess: (data) => {
-            if (data.title && !titleValue) {
+            if (data.title && !getValues("title")) {
               setValue("title", data.title);
             }
             if (data.image_url) {
@@ -97,7 +98,7 @@ export default function ItemForm({
         });
       }, 500);
     },
-    [parseUrl, setValue, titleValue]
+    [parseUrl, setValue, getValues]
   );
 
   useEffect(() => {
