@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import * as Dialog from "@radix-ui/react-dialog";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-motion";
 import { X } from "lucide-react";
 
 interface ModalProps {
@@ -22,6 +22,15 @@ export default function Modal({
   children,
   className,
 }: ModalProps) {
+  const y = useMotionValue(0);
+  const opacity = useTransform(y, [0, 200], [1, 0.5]);
+
+  const handleDragEnd = (_: unknown, info: { offset: { y: number }; velocity: { y: number } }) => {
+    if (info.offset.y > 100 || info.velocity.y > 500) {
+      onOpenChange(false);
+    }
+  };
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <AnimatePresence>
@@ -39,24 +48,39 @@ export default function Modal({
             <Dialog.Content asChild>
               <motion.div
                 className={cn(
-                  "fixed z-50 bg-surface shadow-[0_20px_60px_rgba(0,0,0,0.12),0_4px_20px_rgba(0,0,0,0.08)] focus:outline-none",
+                  "fixed z-50 bg-surface focus:outline-none",
                   // Mobile: bottom sheet
                   "bottom-0 left-0 right-0 rounded-t-[28px] p-6 max-h-[85vh] overflow-y-auto",
+                  "shadow-[0_-8px_40px_rgba(0,0,0,0.1),0_-2px_12px_rgba(0,0,0,0.06)]",
                   // Desktop: centered dialog
                   "sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:right-auto",
                   "sm:-translate-x-1/2 sm:-translate-y-1/2",
                   "sm:rounded-3xl sm:w-full sm:max-w-md sm:max-h-[85vh]",
+                  "sm:shadow-[0_20px_60px_rgba(0,0,0,0.12),0_4px_20px_rgba(0,0,0,0.08)]",
                   className
                 )}
+                style={{ y, opacity }}
                 initial={{ opacity: 0, y: 100 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 100 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                drag="y"
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={{ top: 0, bottom: 0.6 }}
+                onDragEnd={handleDragEnd}
+                dragListener={false}
               >
-                {/* Drag indicator for mobile */}
-                <div className="flex justify-center mb-3 sm:hidden">
-                  <div className="w-10 h-1 rounded-full bg-gray-300" />
-                </div>
+                {/* Drag handle for mobile — draggable area */}
+                <motion.div
+                  className="flex justify-center pt-1 pb-4 -mt-1 cursor-grab active:cursor-grabbing sm:hidden"
+                  drag="y"
+                  dragConstraints={{ top: 0, bottom: 0 }}
+                  dragElastic={{ top: 0, bottom: 0.6 }}
+                  onDragEnd={handleDragEnd}
+                  style={{ y }}
+                >
+                  <div className="w-10 h-1 rounded-full bg-separator" />
+                </motion.div>
 
                 <div className="flex items-start justify-between mb-4">
                   <div>

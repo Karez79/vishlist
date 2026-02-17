@@ -44,18 +44,33 @@ body {
   background: #AEAEB2;
 }
 
-/* Page transition animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Toast overrides for Sonner */
+[data-sonner-toast] {
+  --normal-bg: #FFFFFF !important;
+  --normal-border: 1px solid #E5E5EA !important;
+  font-family: var(--font-body) !important;
 }
 
-.page-transition {
-  animation: fadeIn 0.2s ease-out;
+[data-sonner-toast] [data-title] {
+  font-weight: 500 !important;
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(0, 122, 255, 0.15);
+}
+
+/* Smooth focus for all interactive elements */
+*:focus-visible {
+  outline: 2px solid rgba(0, 122, 255, 0.4);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Input autofill styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset;
+  -webkit-text-fill-color: #1D1D1F;
 }

@@ -35,14 +35,25 @@ export default function Countdown({ eventDate }: CountdownProps) {
     return "дней";
   };
 
+  const isToday = daysLeft === 0;
+  const isUrgent = daysLeft <= 3 && daysLeft > 0;
+
   return (
-    <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-2xl bg-fill text-text-muted">
-      <Calendar size={16} />
-      {daysLeft === 0 ? (
-        <span className="text-sm font-medium">Событие сегодня!</span>
+    <div
+      className={`inline-flex items-center gap-2 mt-5 px-4 py-2.5 rounded-2xl text-sm font-medium ${
+        isToday
+          ? "bg-gold/10 text-gold"
+          : isUrgent
+          ? "bg-error/8 text-error"
+          : "bg-fill text-text-muted"
+      }`}
+    >
+      <Calendar size={15} />
+      {isToday ? (
+        <span>Событие сегодня!</span>
       ) : (
-        <span className="text-sm font-medium">
-          Осталось {daysLeft} {pluralize(daysLeft)}
+        <span>
+          {isUrgent ? "Скоро! " : ""}Осталось {daysLeft} {pluralize(daysLeft)}
         </span>
       )}
     </div>

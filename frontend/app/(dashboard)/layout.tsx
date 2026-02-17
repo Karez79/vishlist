@@ -10,6 +10,21 @@ import { Button } from "@/components/ui";
 
 const emptySubscribe = () => () => {};
 
+function UserAvatar({ name }: { name: string }) {
+  const initials = name
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  return (
+    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center">
+      {initials}
+    </div>
+  );
+}
+
 export default function DashboardLayout({
   children,
 }: {
@@ -42,20 +57,25 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-separator">
+      <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-separator">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link
             href="/dashboard"
             className="flex items-center gap-2 text-text font-bold tracking-tight text-xl"
           >
-            <Gift size={24} />
+            <Gift size={24} className="text-primary" />
             Vishlist
           </Link>
 
           <div className="flex items-center gap-3">
-            <span className="text-sm text-text-muted hidden sm:inline">
-              {user?.name}
-            </span>
+            {user?.name && (
+              <div className="flex items-center gap-2">
+                <UserAvatar name={user.name} />
+                <span className="text-sm text-text-muted hidden sm:inline">
+                  {user.name}
+                </span>
+              </div>
+            )}
             <Button variant="ghost" size="sm" onClick={handleLogout} aria-label="Выйти">
               <LogOut size={18} />
             </Button>

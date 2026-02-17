@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Gift, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import { Button, EmptyState, Skeleton } from "@/components/ui";
 import WishlistCard from "@/components/features/WishlistCard";
 import { useAuthStore } from "@/lib/store";
@@ -107,13 +108,19 @@ export default function DashboardPage() {
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2">
-            {wishlists.map((w) => (
-              <WishlistCard
+            {wishlists.map((w, i) => (
+              <motion.div
                 key={w.id}
-                wishlist={w}
-                onDelete={handleDelete}
-                onArchiveToggle={handleArchiveToggle}
-              />
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: Math.min(i * 0.08, 0.4) }}
+              >
+                <WishlistCard
+                  wishlist={w}
+                  onDelete={handleDelete}
+                  onArchiveToggle={handleArchiveToggle}
+                />
+              </motion.div>
             ))}
           </div>
 

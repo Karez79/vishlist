@@ -38,12 +38,12 @@ export default function PublicItemCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.5) }}
-      className="bg-surface rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.06)] p-4 transition-shadow duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+      transition={{ duration: 0.35, delay: Math.min(index * 0.06, 0.4) }}
+      className="bg-surface rounded-3xl border border-separator/60 p-4 transition-all duration-200 hover:border-primary/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
     >
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         {/* Image */}
         <div className="relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-fill">
           {item.image_url && !imgError ? (
@@ -82,17 +82,17 @@ export default function PublicItemCard({
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-text-muted hover:text-primary transition-colors"
+                className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary-light transition-colors"
                 onClick={(e) => e.stopPropagation()}
-                aria-label="Открыть ссылку"
               >
-                <ExternalLink size={14} />
+                <ExternalLink size={12} />
+                Ссылка
               </a>
             )}
           </div>
 
           {item.note && (
-            <p className="text-xs text-text-muted mt-1 line-clamp-2">
+            <p className="text-xs text-text-muted mt-1.5 line-clamp-2">
               {item.note}
             </p>
           )}
@@ -112,8 +112,8 @@ export default function PublicItemCard({
 
       {/* Reservation info (for guests) */}
       {!isOwner && item.reservation && (
-        <div className="mt-3 text-xs text-text-muted bg-fill rounded-2xl px-3 py-2">
-          Зарезервировал(а): {item.reservation.guest_name}
+        <div className="mt-3 text-xs text-text-muted bg-reserved/5 border border-reserved/10 rounded-2xl px-3 py-2">
+          Зарезервировал(а): <span className="font-medium">{item.reservation.guest_name}</span>
           {myReservation && (
             <span className="text-primary font-medium ml-1">(это вы)</span>
           )}
@@ -126,7 +126,7 @@ export default function PublicItemCard({
           {item.contributions.map((c) => (
             <div
               key={c.id}
-              className="text-xs text-text-muted flex items-center justify-between bg-fill rounded-2xl px-3 py-1.5"
+              className="text-xs text-text-muted flex items-center justify-between bg-fill rounded-2xl px-3 py-2"
             >
               <span>
                 {c.guest_name}{" "}
@@ -134,7 +134,7 @@ export default function PublicItemCard({
                   <span className="text-primary font-medium">(вы)</span>
                 )}
               </span>
-              <span className="font-medium">{formatPrice(c.amount)}</span>
+              <span className="font-semibold text-text">{formatPrice(c.amount)}</span>
             </div>
           ))}
         </div>
@@ -142,16 +142,16 @@ export default function PublicItemCard({
 
       {/* Action buttons */}
       {!isOwner && !item.is_reserved && !isFullyCollected && (
-        <div className="flex gap-2 mt-3">
+        <div className="flex gap-2 mt-4">
           {!hasContributions && onReserve && (
-            <Button size="sm" onClick={onReserve} className="flex-1">
+            <Button size="lg" onClick={onReserve} className="flex-1">
               Зарезервировать
             </Button>
           )}
           {item.price && !item.is_reserved && onContribute && (
             <Button
-              size="sm"
-              variant="secondary"
+              size="lg"
+              variant={hasContributions ? "primary" : "secondary"}
               onClick={onContribute}
               className="flex-1"
             >
@@ -168,7 +168,7 @@ export default function PublicItemCard({
             size="sm"
             variant="ghost"
             onClick={onCancelReservation}
-            className="text-xs"
+            className="text-xs text-error/70 hover:text-error"
           >
             Отменить резервацию
           </Button>
@@ -181,7 +181,7 @@ export default function PublicItemCard({
             <button
               key={c.id}
               onClick={() => onCancelContribution(c.id)}
-              className="text-xs text-error/70 hover:text-error transition-colors"
+              className="text-xs text-error/60 hover:text-error transition-colors px-2 py-1 rounded-lg hover:bg-error/5"
             >
               Отменить вклад ({formatPrice(c.amount)})
             </button>

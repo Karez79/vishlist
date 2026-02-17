@@ -33,12 +33,16 @@ export default function RootLayout({
         </Providers>
         <Toaster
           position="bottom-center"
+          gap={8}
           toastOptions={{
             style: {
               background: "#FFFFFF",
               border: "1px solid #E5E5EA",
               borderRadius: "16px",
               color: "#1D1D1F",
+              boxShadow: "0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
+              padding: "12px 16px",
+              fontSize: "14px",
             },
           }}
         />
