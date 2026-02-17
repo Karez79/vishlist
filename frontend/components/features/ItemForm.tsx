@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { Button, Input, Modal } from "@/components/ui";
+import ImageUpload from "@/components/ui/ImageUpload";
 import { useParseUrl } from "@/hooks/useParseUrl";
 
 const schema = z.object({
@@ -161,12 +162,23 @@ export default function ItemForm({
 
         {showAdvanced && (
           <>
-            <Input
-              label="Ссылка на картинку"
-              placeholder="https://...image.jpg"
-              error={errors.image_url?.message}
-              {...register("image_url")}
-            />
+            <div>
+              <label className="block text-sm font-medium text-text mb-1.5">
+                Картинка
+              </label>
+              <ImageUpload
+                value={watch("image_url") || undefined}
+                onChange={(url) => setValue("image_url", url || "")}
+              />
+              <div className="mt-2">
+                <Input
+                  label="Или ссылка на картинку"
+                  placeholder="https://...image.jpg"
+                  error={errors.image_url?.message}
+                  {...register("image_url")}
+                />
+              </div>
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-text mb-1.5">

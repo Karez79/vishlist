@@ -18,6 +18,8 @@ LOGIN_RATE_LIMIT = "5/minute"
 REGISTER_RATE_LIMIT = "3/minute"
 URL_PARSER_RATE_LIMIT = "10/minute"
 GUEST_RECOVER_RATE_LIMIT = "3/minute"
+RESERVE_RATE_LIMIT = "10/minute"
+CONTRIBUTE_RATE_LIMIT = "10/minute"
 
 # WebSocket
 WS_PING_INTERVAL = 30  # seconds
