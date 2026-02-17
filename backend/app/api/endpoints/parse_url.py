@@ -1,3 +1,5 @@
+import asyncio
+import json
 import logging
 import re
 import socket
@@ -113,27 +115,65 @@ def _get_wb_basket(vol: int) -> str:
     return "21"
 
 
-def _parse_wildberries(url: str) -> ParseUrlResponse | None:
-    """Extract product image from Wildberries URL using CDN."""
+def _wb_cdn_base(nm_id: int) -> tuple[str, int, int]:
+    """Return (CDN base URL, vol, part) for a WB product."""
+    vol = nm_id // 100000
+    part = nm_id // 1000
+    basket = _get_wb_basket(vol)
+    base = f"https://basket-{basket}.wbbasket.ru/vol{vol}/part{part}/{nm_id}"
+    return base, vol, part
+
+
+async def _parse_wildberries(url: str) -> ParseUrlResponse | None:
+    """Extract product info from Wildberries URL using public CDN endpoints."""
     match = re.search(r"/catalog/(\d+)", url)
     if not match:
         return None
 
     nm_id = int(match.group(1))
-    vol = nm_id // 100000
-    part = nm_id // 1000
-    basket = _get_wb_basket(vol)
+    base, vol, part = _wb_cdn_base(nm_id)
 
-    image_url = (
-        f"https://basket-{basket}.wbbasket.ru"
-        f"/vol{vol}/part{part}/{nm_id}/images/big/1.webp"
-    )
+    image_url = f"{base}/images/big/1.webp"
+    title = None
+    price = None
+
+    try:
+        async with httpx.AsyncClient(timeout=5) as client:
+            card_resp, price_resp = await asyncio.gather(
+                client.get(f"{base}/info/ru/card.json"),
+                client.get(f"{base}/info/price-history.json"),
+                return_exceptions=True,
+            )
+
+            # Extract title from card.json
+            if isinstance(card_resp, httpx.Response) and card_resp.status_code == 200:
+                try:
+                    data = json.JSONDecoder().raw_decode(card_resp.text)[0]
+                    title = data.get("imt_name")
+                    if title and len(title) > 200:
+                        title = title[:200]
+                except (json.JSONDecodeError, IndexError):
+                    pass
+
+            # Extract latest price from price-history.json (prices in kopecks)
+            if isinstance(price_resp, httpx.Response) and price_resp.status_code == 200:
+                try:
+                    history = price_resp.json()
+                    if history and isinstance(history, list):
+                        last_entry = history[-1]
+                        rub_kopecks = last_entry.get("price", {}).get("RUB")
+                        if rub_kopecks and isinstance(rub_kopecks, int):
+                            price = rub_kopecks // 100
+                except (json.JSONDecodeError, KeyError, IndexError):
+                    pass
+    except Exception:
+        logger.debug("WB CDN fetch failed for %s", nm_id)
 
     return ParseUrlResponse(
-        title=None,
+        title=title,
         image_url=image_url,
         description=None,
-        price=None,
+        price=price,
     )
 
 
@@ -163,12 +203,12 @@ def _parse_ozon(url: str) -> ParseUrlResponse | None:
     )
 
 
-def _try_marketplace_parse(url: str) -> ParseUrlResponse | None:
+async def _try_marketplace_parse(url: str) -> ParseUrlResponse | None:
     """Try marketplace-specific parsers before generic fetch."""
     hostname = urlparse(url).hostname or ""
 
     if "wildberries.ru" in hostname or "wb.ru" in hostname:
-        return _parse_wildberries(url)
+        return await _parse_wildberries(url)
 
     if "ozon.ru" in hostname:
         return _parse_ozon(url)
@@ -200,8 +240,8 @@ async def parse_url(
             detail="Недопустимый адрес",
         )
 
-    # Try marketplace-specific parsers first (no HTTP fetch needed)
-    marketplace_result = _try_marketplace_parse(url)
+    # Try marketplace-specific parsers first
+    marketplace_result = await _try_marketplace_parse(url)
     if marketplace_result is not None:
         return marketplace_result
 
