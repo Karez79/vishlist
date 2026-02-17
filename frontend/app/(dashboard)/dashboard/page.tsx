@@ -44,7 +44,7 @@ export default function DashboardPage() {
         queryClient.invalidateQueries({ queryKey: ["wishlists"] });
         toast.success(archived ? "Вишлист архивирован" : "Вишлист разархивирован");
       })
-      .catch((error: Error) => {
+      .catch((error: unknown) => {
         toast.error(getErrorMessage(error, "Ошибка"));
       });
   };
