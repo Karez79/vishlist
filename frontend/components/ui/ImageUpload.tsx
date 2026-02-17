@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Upload, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/lib/store";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -19,6 +20,7 @@ export default function ImageUpload({
   onChange,
   className,
 }: ImageUploadProps) {
+  const token = useAuthStore((s) => s.token);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -42,21 +44,9 @@ export default function ImageUpload({
         const formData = new FormData();
         formData.append("file", file);
 
-        // Get auth token
-        let token = "";
-        const authStorage = localStorage.getItem("auth-storage");
-        if (authStorage) {
-          try {
-            const { state } = JSON.parse(authStorage);
-            token = state?.token || "";
-          } catch {
-            // ignore
-          }
-        }
-
         const res = await fetch("/api/upload", {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token || ""}` },
           body: formData,
         });
 
@@ -75,7 +65,7 @@ export default function ImageUpload({
         setUploading(false);
       }
     },
-    [onChange]
+    [onChange, token]
   );
 
   const handleDrop = useCallback(

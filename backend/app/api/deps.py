@@ -23,9 +23,26 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def get_db_readonly() -> AsyncGenerator[AsyncSession, None]:
-    """Read-only session without an explicit transaction."""
+    """Session without an explicit write transaction (autobegin)."""
     async with async_session() as session:
         yield session
+
+
+async def _resolve_optional_user(
+    db: AsyncSession, token: Optional[str]
+) -> Optional[User]:
+    """Shared logic for resolving a user from a JWT token."""
+    if not token:
+        return None
+    payload = decode_access_token(token)
+    if not payload:
+        return None
+    try:
+        user_id = UUID(payload["sub"])
+    except (ValueError, KeyError):
+        return None
+    result = await db.execute(select(User).where(User.id == user_id))
+    return result.scalar_one_or_none()
 
 
 async def get_current_user(
@@ -58,35 +75,14 @@ async def get_current_user_optional(
     db: AsyncSession = Depends(get_db),
     token: Optional[str] = Depends(oauth2_scheme),
 ) -> Optional[User]:
-    if not token:
-        return None
-    payload = decode_access_token(token)
-    if not payload:
-        return None
-    try:
-        user_id = UUID(payload["sub"])
-    except (ValueError, KeyError):
-        return None
-    result = await db.execute(select(User).where(User.id == user_id))
-    return result.scalar_one_or_none()
+    return await _resolve_optional_user(db, token)
 
 
 async def get_current_user_optional_readonly(
     db: AsyncSession = Depends(get_db_readonly),
     token: Optional[str] = Depends(oauth2_scheme),
 ) -> Optional[User]:
-    """Same as get_current_user_optional but uses a read-only session."""
-    if not token:
-        return None
-    payload = decode_access_token(token)
-    if not payload:
-        return None
-    try:
-        user_id = UUID(payload["sub"])
-    except (ValueError, KeyError):
-        return None
-    result = await db.execute(select(User).where(User.id == user_id))
-    return result.scalar_one_or_none()
+    return await _resolve_optional_user(db, token)
 
 
 async def get_wishlist_slug(item: WishlistItem, db: AsyncSession) -> str:
