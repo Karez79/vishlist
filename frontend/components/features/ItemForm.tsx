@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Link as LinkIcon, ChevronDown, ChevronUp, ImageIcon, MessageSquare } from "lucide-react";
 import { Button, Input, Modal } from "@/components/ui";
 import ImageUpload from "@/components/ui/ImageUpload";
 import { useParseUrl } from "@/hooks/useParseUrl";
@@ -122,16 +122,18 @@ export default function ItemForm({
   return (
     <Modal open={open} onOpenChange={onOpenChange} title={title}>
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+        {/* URL field with loading indicator */}
         <div className="relative">
           <Input
             label="Ссылка на товар"
-            placeholder="https://... (название подтянется автоматически)"
+            placeholder="https://... (данные подтянутся автоматически)"
             error={errors.url?.message}
             {...register("url")}
           />
           {parseUrl.isPending && (
-            <div className="absolute right-3 top-8 text-text-muted">
-              <Loader2 size={16} className="animate-spin" />
+            <div className="absolute right-3 top-8 flex items-center gap-1.5 text-primary">
+              <Loader2 size={14} className="animate-spin" />
+              <span className="text-xs">Загрузка...</span>
             </div>
           )}
         </div>
@@ -148,23 +150,26 @@ export default function ItemForm({
           type="number"
           min={1}
           step={1}
-          placeholder="25000"
+          placeholder="25 000"
           error={errors.price?.message}
           {...register("price")}
         />
 
+        {/* Advanced toggle */}
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="text-sm text-text-muted hover:text-text transition-colors"
+          className="flex items-center gap-1.5 text-sm text-primary hover:text-primary-light transition-colors font-medium"
         >
-          {showAdvanced ? "Скрыть" : "Дополнительно"} (картинка, заметка)
+          {showAdvanced ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {showAdvanced ? "Скрыть дополнительно" : "Картинка и заметка"}
         </button>
 
         {showAdvanced && (
-          <>
+          <div className="space-y-4 pt-1">
             <div>
-              <label className="block text-sm font-medium text-text mb-1.5">
+              <label className="flex items-center gap-1.5 text-sm font-medium text-text mb-1.5">
+                <ImageIcon size={14} className="text-text-muted" />
                 Картинка
               </label>
               <ImageUpload
@@ -182,7 +187,8 @@ export default function ItemForm({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text mb-1.5">
+              <label className="flex items-center gap-1.5 text-sm font-medium text-text mb-1.5">
+                <MessageSquare size={14} className="text-text-muted" />
                 Заметка для друзей
               </label>
               <textarea
@@ -192,7 +198,7 @@ export default function ItemForm({
                 {...register("note")}
               />
             </div>
-          </>
+          </div>
         )}
 
         <Button type="submit" className="w-full" size="lg" loading={loading}>

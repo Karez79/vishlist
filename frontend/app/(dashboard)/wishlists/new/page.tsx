@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Gift } from "lucide-react";
 import { Button, Input } from "@/components/ui";
 import { useCreateWishlist } from "@/hooks/useWishlists";
 
@@ -52,21 +52,30 @@ export default function NewWishlistPage() {
     <div className="max-w-lg mx-auto">
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-1 text-text-muted hover:text-text mb-6 transition-colors"
+        className="flex items-center gap-1.5 text-text-muted hover:text-text mb-8 transition-colors text-sm"
       >
-        <ArrowLeft size={18} />
+        <ArrowLeft size={16} />
         Назад
       </button>
 
-      <h1 className="text-2xl font-bold tracking-tight mb-6">
-        Новый вишлист
-      </h1>
+      {/* Header with preview */}
+      <div className="text-center mb-8">
+        <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-primary/8 flex items-center justify-center text-4xl">
+          {emoji}
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Новый вишлист
+        </h1>
+        <p className="text-text-muted text-sm mt-1">
+          Создайте список желаний и поделитесь с друзьями
+        </p>
+      </div>
 
-      <div className="bg-surface rounded-3xl shadow-[0_2px_8px_rgba(0,0,0,0.06),0_0_1px_rgba(0,0,0,0.1)] p-6">
+      <div className="bg-surface rounded-3xl border border-separator/60 p-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Emoji picker */}
           <div>
-            <label className="block text-sm font-medium text-text mb-2">
+            <label className="block text-sm font-medium text-text mb-2.5">
               Иконка
             </label>
             <div className="flex flex-wrap gap-2">
@@ -75,10 +84,10 @@ export default function NewWishlistPage() {
                   key={e}
                   type="button"
                   onClick={() => setEmoji(e)}
-                  className={`w-10 h-10 rounded-2xl text-xl flex items-center justify-center transition-all ${
+                  className={`w-11 h-11 rounded-2xl text-xl flex items-center justify-center transition-all duration-200 ${
                     emoji === e
-                      ? "bg-primary/10 ring-2 ring-primary scale-110"
-                      : "bg-fill hover:bg-separator"
+                      ? "bg-primary/10 ring-2 ring-primary scale-110 shadow-sm"
+                      : "bg-fill hover:bg-separator hover:scale-105"
                   }`}
                 >
                   {e}
@@ -123,6 +132,7 @@ export default function NewWishlistPage() {
             size="lg"
             loading={createMutation.isPending}
           >
+            <Gift size={18} className="mr-1.5" />
             Создать вишлист
           </Button>
         </form>
