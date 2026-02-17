@@ -25,7 +25,11 @@ function getGreeting(): string {
 
 function getFirstName(name: string | undefined): string {
   if (!name) return "";
-  return name.split(" ")[0];
+  const parts = name.trim().split(/\s+/);
+  // Russian ФИО format (3 parts): take second word (имя)
+  if (parts.length >= 3) return parts[1];
+  // "Имя Фамилия" or single name
+  return parts[0];
 }
 
 export default function DashboardPage() {
