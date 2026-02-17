@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowLeft, Gift } from "lucide-react";
-import { Button, Input } from "@/components/ui";
+import { Button, Input, DatePicker } from "@/components/ui";
 import { useCreateWishlist } from "@/hooks/useWishlists";
 
 const EMOJIS = ["🎁", "🎂", "🎄", "💍", "🎓", "🏠", "✈️", "🎉", "💝", "🧸", "📱", "👟"];
@@ -14,7 +14,6 @@ const EMOJIS = ["🎁", "🎂", "🎄", "💍", "🎓", "🏠", "✈️", "🎉"
 const schema = z.object({
   title: z.string().min(1, "Введите название").max(100),
   description: z.string().max(500).optional(),
-  event_date: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -22,6 +21,7 @@ type FormData = z.infer<typeof schema>;
 export default function NewWishlistPage() {
   const router = useRouter();
   const [emoji, setEmoji] = useState("🎁");
+  const [eventDate, setEventDate] = useState("");
   const createMutation = useCreateWishlist();
 
   const {
@@ -38,7 +38,7 @@ export default function NewWishlistPage() {
         title: data.title,
         description: data.description || undefined,
         emoji,
-        event_date: data.event_date || undefined,
+        event_date: eventDate || undefined,
       },
       {
         onSuccess: (wishlist) => {
@@ -120,10 +120,11 @@ export default function NewWishlistPage() {
             />
           </div>
 
-          <Input
+          <DatePicker
             label="Дата события"
-            type="date"
-            {...register("event_date")}
+            placeholder="Необязательно"
+            value={eventDate}
+            onChange={setEventDate}
           />
 
           <Button

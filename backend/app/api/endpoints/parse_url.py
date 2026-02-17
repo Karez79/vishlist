@@ -96,6 +96,86 @@ def extract_price(text: str | None) -> int | None:
     return None
 
 
+# --- Marketplace-specific parsers ---
+
+def _get_wb_basket(vol: int) -> str:
+    """Determine WB CDN basket number from volume."""
+    ranges = [
+        (143, "01"), (287, "02"), (431, "03"), (719, "04"),
+        (1007, "05"), (1061, "06"), (1115, "07"), (1169, "08"),
+        (1313, "09"), (1601, "10"), (1655, "11"), (1919, "12"),
+        (2045, "13"), (2189, "14"), (2405, "15"), (2621, "16"),
+        (2837, "17"), (3053, "18"), (3269, "19"), (3485, "20"),
+    ]
+    for limit, basket in ranges:
+        if vol <= limit:
+            return basket
+    return "21"
+
+
+def _parse_wildberries(url: str) -> ParseUrlResponse | None:
+    """Extract product image from Wildberries URL using CDN."""
+    match = re.search(r"/catalog/(\d+)", url)
+    if not match:
+        return None
+
+    nm_id = int(match.group(1))
+    vol = nm_id // 100000
+    part = nm_id // 1000
+    basket = _get_wb_basket(vol)
+
+    image_url = (
+        f"https://basket-{basket}.wbbasket.ru"
+        f"/vol{vol}/part{part}/{nm_id}/images/big/1.webp"
+    )
+
+    return ParseUrlResponse(
+        title=None,
+        image_url=image_url,
+        description=None,
+        price=None,
+    )
+
+
+def _parse_ozon(url: str) -> ParseUrlResponse | None:
+    """Extract what we can from Ozon URL."""
+    # Ozon URLs: /product/product-name-slug-123456789/
+    match = re.search(r"/product/(.+?)(?:/|\?|$)", url)
+    if not match:
+        return None
+
+    slug = match.group(1)
+    # Extract readable title from slug (replace hyphens, remove trailing ID)
+    title_parts = slug.rsplit("-", 1)
+    if len(title_parts) == 2 and title_parts[1].isdigit():
+        title = title_parts[0].replace("-", " ").strip().capitalize()
+    else:
+        title = slug.replace("-", " ").strip().capitalize()
+
+    if len(title) > 200:
+        title = title[:200]
+
+    return ParseUrlResponse(
+        title=title if title else None,
+        image_url=None,
+        description=None,
+        price=None,
+    )
+
+
+def _try_marketplace_parse(url: str) -> ParseUrlResponse | None:
+    """Try marketplace-specific parsers before generic fetch."""
+    hostname = urlparse(url).hostname or ""
+
+    if "wildberries.ru" in hostname or "wb.ru" in hostname:
+        return _parse_wildberries(url)
+
+    if "ozon.ru" in hostname:
+        return _parse_ozon(url)
+
+    return None
+
+
 @router.post("", response_model=ParseUrlResponse)
 @limiter.limit("10/minute")
 async def parse_url(
@@ -119,6 +199,11 @@ async def parse_url(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Недопустимый адрес",
         )
+
+    # Try marketplace-specific parsers first (no HTTP fetch needed)
+    marketplace_result = _try_marketplace_parse(url)
+    if marketplace_result is not None:
+        return marketplace_result
 
     try:
         async with httpx.AsyncClient(

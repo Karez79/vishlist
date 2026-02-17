@@ -7,3 +7,4 @@ export { default as EmptyState } from "./EmptyState";
 export { default as ProgressBar } from "./ProgressBar";
 export { default as Modal } from "./Modal";
 export { default as ImageUpload } from "./ImageUpload";
+export { default as DatePicker } from "./DatePicker";
