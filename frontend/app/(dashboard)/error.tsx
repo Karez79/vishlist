@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui";
 
 export default function DashboardError({
-  error,
+  error: _error,
   reset,
 }: {
   error: Error & { digest?: string };

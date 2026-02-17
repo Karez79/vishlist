@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { LogOut, Gift } from "lucide-react";
 import { useAuthStore } from "@/lib/store";
 import { useLogout } from "@/hooks/useAuth";
 import { Button } from "@/components/ui";
+
+const emptySubscribe = () => () => {};
 
 export default function DashboardLayout({
   children,
@@ -18,11 +20,11 @@ export default function DashboardLayout({
   const token = useAuthStore((s) => s.token);
   const user = useAuthStore((s) => s.user);
   const handleLogout = useLogout();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
     if (mounted && !token) {
@@ -30,7 +32,6 @@ export default function DashboardLayout({
     }
   }, [mounted, token, router, pathname]);
 
-  // Show nothing until hydrated to avoid flash
   if (!mounted || !token) {
     return (
       <div className="min-h-screen flex items-center justify-center">

@@ -39,7 +39,7 @@ export default function WishlistEditPage() {
   const id = params.id as string;
 
   const { data: wishlist, isLoading: wishlistLoading } = useWishlist(id);
-  const { data: itemsData, isLoading: itemsLoading } = useItems(id);
+  const { data: itemsData } = useItems(id);
   const createItem = useCreateItem(id);
   const updateItem = useUpdateItem(id);
   const deleteItem = useDeleteItem(id);

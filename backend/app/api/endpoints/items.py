@@ -5,7 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import get_current_user, get_db
+from app.api.deps import get_current_user, get_db, get_wishlist_slug
 from app.core.constants import DEFAULT_ITEMS_PAGE_SIZE, MAX_ITEMS_PER_WISHLIST
 from app.core.ws_manager import manager
 from app.models.item import WishlistItem
@@ -53,13 +53,6 @@ async def get_owner_wishlist(wishlist_id: UUID, user: User, db: AsyncSession) ->
     if not wishlist:
         raise HTTPException(status_code=404, detail="Вишлист не найден")
     return wishlist
-
-
-async def get_wishlist_slug(item: WishlistItem, db: AsyncSession) -> str:
-    result = await db.execute(
-        select(Wishlist.slug).where(Wishlist.id == item.wishlist_id)
-    )
-    return result.scalar_one()
 
 
 @router.get("/wishlists/{wishlist_id}/items", response_model=PaginatedResponse[ItemResponse])

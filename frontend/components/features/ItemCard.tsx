@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useState } from "react";
 import { ExternalLink, GripVertical, Pencil, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/utils";
 import { Badge } from "@/components/ui";
 import type { WishlistItem } from "@/types";

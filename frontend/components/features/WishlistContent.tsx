@@ -18,6 +18,7 @@ import {
   useReserveItem,
   useCancelReservation,
   useContributeItem,
+  useCancelContribution,
   useUpdateReservationEmail,
   useUpdateContributionEmail,
 } from "@/hooks/useReservations";
@@ -105,6 +106,7 @@ export default function WishlistContent({
   const reserveItem = useReserveItem(slug);
   const cancelReservation = useCancelReservation(slug);
   const contributeItem = useContributeItem(slug);
+  const cancelContribution = useCancelContribution(slug);
   const updateReservationEmail = useUpdateReservationEmail(slug);
   const updateContributionEmail = useUpdateContributionEmail(slug);
 
@@ -127,6 +129,14 @@ export default function WishlistContent({
     cancelReservation.mutate(itemId, {
       onSuccess: () => {
         toast("Резервация отменена");
+      },
+    });
+  };
+
+  const handleCancelContribution = (contributionId: string) => {
+    cancelContribution.mutate(contributionId, {
+      onSuccess: () => {
+        toast("Вклад отменён");
       },
     });
   };
@@ -182,12 +192,12 @@ export default function WishlistContent({
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <a
+          <Link
             href="/"
             className="text-text-muted hover:text-text transition-colors text-sm"
           >
             ← Vishlist
-          </a>
+          </Link>
           <ShareButton slug={wishlist.slug} />
         </div>
 
@@ -236,6 +246,7 @@ export default function WishlistContent({
                 onReserve={() => setReserveModalItem(item)}
                 onContribute={() => setContributeModalItem(item)}
                 onCancelReservation={() => handleCancelReservation(item.id)}
+                onCancelContribution={handleCancelContribution}
               />
             ))}
           </div>

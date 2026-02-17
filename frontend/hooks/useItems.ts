@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import apiClient from "@/lib/api-client";
+import { getErrorMessage } from "@/lib/utils";
 import type { PaginatedResponse, WishlistItem } from "@/types";
 
 export function useItems(wishlistId: string, page: number = 1) {
@@ -42,8 +43,8 @@ export function useCreateItem(wishlistId: string) {
       queryClient.invalidateQueries({ queryKey: ["wishlist", wishlistId] });
       toast.success("Желание добавлено!");
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || "Ошибка добавления");
+    onError: (error: Error) => {
+      toast.error(getErrorMessage(error, "Ошибка добавления"));
     },
   });
 }
@@ -70,8 +71,8 @@ export function useUpdateItem(wishlistId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items", wishlistId] });
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || "Ошибка обновления");
+    onError: (error: Error) => {
+      toast.error(getErrorMessage(error, "Ошибка обновления"));
     },
   });
 }

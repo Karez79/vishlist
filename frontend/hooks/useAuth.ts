@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/lib/store";
+import { getErrorMessage } from "@/lib/utils";
 import type { User } from "@/types";
 
 interface AuthResponse {
@@ -48,10 +49,8 @@ export function useRegister(redirectTo?: string) {
       toast.success(`Добро пожаловать, ${user.name}!`);
       router.push(redirectTo || "/dashboard");
     },
-    onError: (error: any) => {
-      const message =
-        error.response?.data?.detail || "Ошибка регистрации";
-      toast.error(message);
+    onError: (error: Error) => {
+      toast.error(getErrorMessage(error, "Ошибка регистрации"));
     },
   });
 }
@@ -73,10 +72,8 @@ export function useLogin(redirectTo?: string) {
       setAuth(data.access_token, user);
       router.push(redirectTo || "/dashboard");
     },
-    onError: (error: any) => {
-      const message =
-        error.response?.data?.detail || "Неверный email или пароль";
-      toast.error(message);
+    onError: (error: Error) => {
+      toast.error(getErrorMessage(error, "Неверный email или пароль"));
     },
   });
 }

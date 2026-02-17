@@ -63,6 +63,7 @@ export default function ItemForm({
     defaultValues: defaultValues || {},
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- RHF watch() is intentionally non-memoizable
   const urlValue = watch("url");
   const titleValue = watch("title");
 

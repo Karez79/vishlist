@@ -164,6 +164,35 @@ export function useContributeItem(slug: string) {
   });
 }
 
+export function useCancelContribution(slug: string) {
+  const queryClient = useQueryClient();
+  const queryKey = ["public-wishlist", slug];
+
+  return useMutation({
+    mutationFn: async (contributionId: string) => {
+      const headers = getGuestHeaders(slug);
+      const { data } = await apiClient.delete(
+        `/contributions/${contributionId}`,
+        { headers }
+      );
+      return data;
+    },
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<InfiniteWishlist>(queryKey);
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKey, context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+}
+
 export function useUpdateReservationEmail(slug: string) {
   return useMutation({
     mutationFn: async ({

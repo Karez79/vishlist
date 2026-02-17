@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import WishlistContent from "@/components/features/WishlistContent";
 
@@ -66,12 +67,12 @@ export default async function PublicWishlistPage({
           <p className="text-text-muted mb-6">
             Владелец удалил этот список желаний
           </p>
-          <a
+          <Link
             href="/"
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition-colors"
           >
             На главную
-          </a>
+          </Link>
         </div>
       </div>
     );

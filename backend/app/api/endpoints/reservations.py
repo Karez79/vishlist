@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user_optional, get_db
+from app.api.deps import get_current_user_optional, get_db, get_wishlist_slug
 from app.core.config import settings
 from app.core.limiter import limiter
 from app.core.security import create_guest_recovery_token, decode_guest_recovery_token
@@ -30,13 +30,6 @@ from app.utils.email import send_recovery_email, send_reservation_confirmation
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["reservations"])
-
-
-async def get_wishlist_slug(item: WishlistItem, db: AsyncSession) -> str:
-    result = await db.execute(
-        select(Wishlist.slug).where(Wishlist.id == item.wishlist_id)
-    )
-    return result.scalar_one()
 
 
 async def get_item_for_update(item_id: uuid.UUID, db: AsyncSession) -> WishlistItem:
