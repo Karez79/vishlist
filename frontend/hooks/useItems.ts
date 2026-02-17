@@ -89,6 +89,9 @@ export function useDeleteItem(wishlistId: string) {
       queryClient.invalidateQueries({ queryKey: ["items", wishlistId] });
       queryClient.invalidateQueries({ queryKey: ["wishlist", wishlistId] });
     },
+    onError: (error: Error) => {
+      toast.error(getErrorMessage(error, "Ошибка удаления"));
+    },
   });
 }
 
@@ -103,6 +106,9 @@ export function useRestoreItem(wishlistId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items", wishlistId] });
       queryClient.invalidateQueries({ queryKey: ["wishlist", wishlistId] });
+    },
+    onError: (error: Error) => {
+      toast.error(getErrorMessage(error, "Ошибка восстановления"));
     },
   });
 }

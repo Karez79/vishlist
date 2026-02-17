@@ -1,11 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import apiClient from "@/lib/api-client";
+import { getGuestToken } from "@/lib/guest-token";
 import type { PublicWishlist } from "@/types";
-
-function getGuestToken(slug: string): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(`guest_token_${slug}`);
-}
 
 async function fetchPublicWishlist(
   slug: string,

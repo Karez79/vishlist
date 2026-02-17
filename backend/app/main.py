@@ -27,11 +27,9 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 
 # CORS
-origins = [
-    settings.FRONTEND_URL,
-    "http://localhost:3000",
-    "http://localhost:3001",
-]
+origins = [settings.FRONTEND_URL]
+if settings.DEBUG:
+    origins.extend(["http://localhost:3000", "http://localhost:3001"])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

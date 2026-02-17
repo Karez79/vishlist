@@ -2,26 +2,24 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { Button, EmptyState, Skeleton } from "@/components/ui";
 import WishlistCard from "@/components/features/WishlistCard";
-import apiClient from "@/lib/api-client";
-import { getErrorMessage } from "@/lib/utils";
 import {
   useWishlists,
   useDeleteWishlist,
   useRestoreWishlist,
+  useArchiveWishlist,
 } from "@/hooks/useWishlists";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const { data, isLoading } = useWishlists(page);
   const deleteMutation = useDeleteWishlist();
   const restoreMutation = useRestoreWishlist();
+  const archiveMutation = useArchiveWishlist();
 
   const handleDelete = (id: string) => {
     deleteMutation.mutate(id, {
@@ -38,15 +36,7 @@ export default function DashboardPage() {
   };
 
   const handleArchiveToggle = (id: string, archived: boolean) => {
-    apiClient
-      .put(`/wishlists/${id}`, { is_archived: archived })
-      .then(() => {
-        queryClient.invalidateQueries({ queryKey: ["wishlists"] });
-        toast.success(archived ? "Вишлист архивирован" : "Вишлист разархивирован");
-      })
-      .catch((error: unknown) => {
-        toast.error(getErrorMessage(error, "Ошибка"));
-      });
+    archiveMutation.mutate({ id, archived });
   };
 
   if (isLoading) {

@@ -1,4 +1,5 @@
 import logging
+import secrets
 import uuid
 from typing import Optional
 
@@ -151,7 +152,7 @@ async def cancel_reservation(
     is_owner = False
     if user and reservation.user_id == user.id:
         is_owner = True
-    elif x_guest_token and reservation.guest_token == x_guest_token:
+    elif x_guest_token and reservation.guest_token and secrets.compare_digest(reservation.guest_token, x_guest_token):
         is_owner = True
 
     if not is_owner:
@@ -189,7 +190,7 @@ async def update_reservation_email(
     if not reservation:
         raise HTTPException(status_code=404, detail="Резервация не найдена")
 
-    if not x_guest_token or reservation.guest_token != x_guest_token:
+    if not x_guest_token or not reservation.guest_token or not secrets.compare_digest(reservation.guest_token, x_guest_token):
         raise HTTPException(status_code=403, detail="Нет доступа")
 
     reservation.guest_email = data.email.lower().strip()
@@ -314,7 +315,7 @@ async def delete_contribution(
     is_owner = False
     if user and contribution.user_id == user.id:
         is_owner = True
-    elif x_guest_token and contribution.guest_token == x_guest_token:
+    elif x_guest_token and contribution.guest_token and secrets.compare_digest(contribution.guest_token, x_guest_token):
         is_owner = True
 
     if not is_owner:
@@ -352,7 +353,7 @@ async def update_contribution_email(
     if not contribution:
         raise HTTPException(status_code=404, detail="Вклад не найден")
 
-    if not x_guest_token or contribution.guest_token != x_guest_token:
+    if not x_guest_token or not contribution.guest_token or not secrets.compare_digest(contribution.guest_token, x_guest_token):
         raise HTTPException(status_code=403, detail="Нет доступа")
 
     contribution.guest_email = data.email.lower().strip()

@@ -22,6 +22,21 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
+def _get_oauth():
+    """Create and return configured OAuth client (singleton-like, cheap to recreate)."""
+    from authlib.integrations.starlette_client import OAuth
+
+    oauth = OAuth()
+    oauth.register(
+        name="google",
+        client_id=settings.GOOGLE_CLIENT_ID,
+        client_secret=settings.GOOGLE_CLIENT_SECRET,
+        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+        client_kwargs={"scope": "openid email profile"},
+    )
+    return oauth
+
+
 @router.post("/register", response_model=TokenResponse)
 @limiter.limit("3/minute")
 async def register(request: Request, data: RegisterRequest, db: AsyncSession = Depends(get_db)):
@@ -99,16 +114,7 @@ async def google_login(request: Request):
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="OAuth not configured",
         )
-    from authlib.integrations.starlette_client import OAuth
-
-    oauth = OAuth()
-    oauth.register(
-        name="google",
-        client_id=settings.GOOGLE_CLIENT_ID,
-        client_secret=settings.GOOGLE_CLIENT_SECRET,
-        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-        client_kwargs={"scope": "openid email profile"},
-    )
+    oauth = _get_oauth()
     redirect_uri = settings.GOOGLE_REDIRECT_URI
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
@@ -119,16 +125,7 @@ async def google_callback(request: Request, db: AsyncSession = Depends(get_db)):
         return RedirectResponse(f"{settings.FRONTEND_URL}/login?error=oauth_failed")
 
     try:
-        from authlib.integrations.starlette_client import OAuth
-
-        oauth = OAuth()
-        oauth.register(
-            name="google",
-            client_id=settings.GOOGLE_CLIENT_ID,
-            client_secret=settings.GOOGLE_CLIENT_SECRET,
-            server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-            client_kwargs={"scope": "openid email profile"},
-        )
+        oauth = _get_oauth()
         token_data = await oauth.google.authorize_access_token(request)
     except Exception:
         logger.exception("OAuth callback error")

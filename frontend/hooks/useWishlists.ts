@@ -98,6 +98,9 @@ export function useDeleteWishlist() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["wishlists"] });
     },
+    onError: (error: Error) => {
+      toast.error(getErrorMessage(error, "Ошибка удаления"));
+    },
   });
 }
 
@@ -111,6 +114,27 @@ export function useRestoreWishlist() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["wishlists"] });
+    },
+    onError: (error: Error) => {
+      toast.error(getErrorMessage(error, "Ошибка восстановления"));
+    },
+  });
+}
+
+export function useArchiveWishlist() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, archived }: { id: string; archived: boolean }) => {
+      const { data } = await apiClient.put(`/wishlists/${id}`, { is_archived: archived });
+      return data;
+    },
+    onSuccess: (_data, { archived }) => {
+      queryClient.invalidateQueries({ queryKey: ["wishlists"] });
+      toast.success(archived ? "Вишлист архивирован" : "Вишлист разархивирован");
+    },
+    onError: (error: Error) => {
+      toast.error(getErrorMessage(error, "Ошибка"));
     },
   });
 }

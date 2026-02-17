@@ -9,15 +9,13 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
 from app.api.deps import get_current_user
+from app.core.constants import URL_PARSER_MAX_CONTENT_LENGTH, URL_PARSER_TIMEOUT
 from app.core.limiter import limiter
 from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/parse-url", tags=["utils"])
-
-MAX_CONTENT_SIZE = 1 * 1024 * 1024  # 1 MB
-TIMEOUT = 5.0
 
 # SSRF protection: block private/internal IPs
 BLOCKED_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
@@ -90,7 +88,7 @@ async def parse_url(
     try:
         async with httpx.AsyncClient(
             follow_redirects=True,
-            timeout=TIMEOUT,
+            timeout=URL_PARSER_TIMEOUT,
             max_redirects=3,
         ) as client:
             response = await client.get(
@@ -108,13 +106,13 @@ async def parse_url(
                 )
 
             content_length = response.headers.get("content-length")
-            if content_length and int(content_length) > MAX_CONTENT_SIZE:
+            if content_length and int(content_length) > URL_PARSER_MAX_CONTENT_LENGTH:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Страница слишком большая",
                 )
 
-            html = response.text[:MAX_CONTENT_SIZE]
+            html = response.text[:URL_PARSER_MAX_CONTENT_LENGTH]
 
     except httpx.TimeoutException:
         raise HTTPException(

@@ -21,7 +21,6 @@ GUEST_RECOVER_RATE_LIMIT = "3/minute"
 
 # WebSocket
 WS_PING_INTERVAL = 30  # seconds
-WS_PONG_TIMEOUT = 10  # seconds
 
 # URL parser
 URL_PARSER_TIMEOUT = 5  # seconds

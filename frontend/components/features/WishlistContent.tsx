@@ -130,6 +130,9 @@ export default function WishlistContent({
       onSuccess: () => {
         toast("Резервация отменена");
       },
+      onError: (error) => {
+        toast.error(getErrorMessage(error, "Не удалось отменить резервацию"));
+      },
     });
   };
 
@@ -137,6 +140,9 @@ export default function WishlistContent({
     cancelContribution.mutate(contributionId, {
       onSuccess: () => {
         toast("Вклад отменён");
+      },
+      onError: (error) => {
+        toast.error(getErrorMessage(error, "Не удалось отменить вклад"));
       },
     });
   };
