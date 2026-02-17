@@ -22,19 +22,24 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-def _get_oauth():
-    """Create and return configured OAuth client (singleton-like, cheap to recreate)."""
-    from authlib.integrations.starlette_client import OAuth
+_oauth_instance = None
 
-    oauth = OAuth()
-    oauth.register(
-        name="google",
-        client_id=settings.GOOGLE_CLIENT_ID,
-        client_secret=settings.GOOGLE_CLIENT_SECRET,
-        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-        client_kwargs={"scope": "openid email profile"},
-    )
-    return oauth
+
+def _get_oauth():
+    """Lazily create and cache the OAuth client."""
+    global _oauth_instance
+    if _oauth_instance is None:
+        from authlib.integrations.starlette_client import OAuth
+
+        _oauth_instance = OAuth()
+        _oauth_instance.register(
+            name="google",
+            client_id=settings.GOOGLE_CLIENT_ID,
+            client_secret=settings.GOOGLE_CLIENT_SECRET,
+            server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+            client_kwargs={"scope": "openid email profile"},
+        )
+    return _oauth_instance
 
 
 @router.post("/register", response_model=TokenResponse)

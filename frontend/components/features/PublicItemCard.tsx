@@ -6,7 +6,7 @@ import { ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button, ProgressBar } from "@/components/ui";
 import { formatPrice } from "@/lib/utils";
-import { getStatusBadge } from "@/lib/item-utils";
+import { getStatusBadge } from "@/components/ui/item-utils";
 import type { WishlistItem } from "@/types";
 
 interface PublicItemCardProps {

@@ -1,3 +1,4 @@
+import secrets
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
@@ -55,7 +56,7 @@ def item_to_public_response(
                 "guest_name": r.guest_name,
                 "is_mine": (
                     (user is not None and r.user_id is not None and r.user_id == user.id)
-                    or (guest_token and r.guest_token and r.guest_token == guest_token)
+                    or (guest_token and r.guest_token and secrets.compare_digest(r.guest_token, guest_token))
                     or False
                 ),
                 "created_at": r.created_at.isoformat(),
@@ -72,7 +73,7 @@ def item_to_public_response(
                 "amount": c.amount,
                 "is_mine": (
                     (user is not None and c.user_id is not None and c.user_id == user.id)
-                    or (guest_token and c.guest_token and c.guest_token == guest_token)
+                    or (guest_token and c.guest_token and secrets.compare_digest(c.guest_token, guest_token))
                     or False
                 ),
                 "created_at": c.created_at.isoformat(),

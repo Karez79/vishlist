@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { ExternalLink, GripVertical, Pencil, Trash2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import { getStatusBadge } from "@/lib/item-utils";
+import { getStatusBadge } from "@/components/ui/item-utils";
 import type { WishlistItem } from "@/types";
 
 interface ItemCardProps {
