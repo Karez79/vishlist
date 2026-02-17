@@ -32,7 +32,7 @@ export default function RootLayout({
           {children}
         </Providers>
         <Toaster
-          position="bottom-center"
+          position="top-center"
           gap={8}
           toastOptions={{
             style: {
@@ -41,7 +41,6 @@ export default function RootLayout({
               borderRadius: "16px",
               color: "#1D1D1F",
               boxShadow: "0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
-              padding: "12px 16px",
               fontSize: "14px",
             },
           }}

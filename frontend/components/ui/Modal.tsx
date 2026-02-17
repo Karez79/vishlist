@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-motion";
@@ -23,11 +24,19 @@ export default function Modal({
   className,
 }: ModalProps) {
   const y = useMotionValue(0);
-  const opacity = useTransform(y, [0, 200], [1, 0.5]);
+  const backdropOpacity = useTransform(y, [0, 300], [1, 0.2]);
+
+  // Reset drag position when modal opens
+  useEffect(() => {
+    if (open) y.set(0);
+  }, [open, y]);
 
   const handleDragEnd = (_: unknown, info: { offset: { y: number }; velocity: { y: number } }) => {
     if (info.offset.y > 100 || info.velocity.y > 500) {
       onOpenChange(false);
+    } else {
+      // Snap back
+      y.set(0);
     }
   };
 
@@ -43,6 +52,7 @@ export default function Modal({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
+                style={{ opacity: backdropOpacity }}
               />
             </Dialog.Overlay>
             <Dialog.Content asChild>
@@ -59,18 +69,12 @@ export default function Modal({
                   "sm:shadow-[0_20px_60px_rgba(0,0,0,0.12),0_4px_20px_rgba(0,0,0,0.08)]",
                   className
                 )}
-                style={{ y, opacity }}
-                initial={{ opacity: 0, y: 100 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 100 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                drag="y"
-                dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={{ top: 0, bottom: 0.6 }}
-                onDragEnd={handleDragEnd}
-                dragListener={false}
+                initial={{ opacity: 0, y: 60, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 40, scale: 0.98 }}
+                transition={{ type: "spring", damping: 28, stiffness: 320 }}
               >
-                {/* Drag handle for mobile — draggable area */}
+                {/* Mobile drag handle — swipe down to dismiss */}
                 <motion.div
                   className="flex justify-center pt-1 pb-4 -mt-1 cursor-grab active:cursor-grabbing sm:hidden"
                   drag="y"
