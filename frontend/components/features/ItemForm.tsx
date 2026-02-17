@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link2, Image as ImageIcon, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button, Input, Modal } from "@/components/ui";
+import { useParseUrl } from "@/hooks/useParseUrl";
 
 const schema = z.object({
   title: z.string().min(1, "Введите название").max(200),
@@ -47,16 +48,61 @@ export default function ItemForm({
   title = "Добавить желание",
 }: ItemFormProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const parseUrl = useParseUrl();
+  const debounceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema) as Resolver<FormData>,
     defaultValues: defaultValues || {},
   });
+
+  const urlValue = watch("url");
+  const titleValue = watch("title");
+
+  // Auto-fill from URL with debounce
+  const handleUrlAutofill = useCallback(
+    (url: string) => {
+      if (!url || titleValue) return; // Don't overwrite existing title
+
+      try {
+        new URL(url);
+      } catch {
+        return; // Not a valid URL yet
+      }
+
+      clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => {
+        parseUrl.mutate(url, {
+          onSuccess: (data) => {
+            if (data.title && !titleValue) {
+              setValue("title", data.title);
+            }
+            if (data.image_url) {
+              setValue("image_url", data.image_url);
+              setShowAdvanced(true);
+            }
+            if (data.price) {
+              setValue("price", data.price);
+            }
+          },
+        });
+      }, 500);
+    },
+    [parseUrl, setValue, titleValue]
+  );
+
+  useEffect(() => {
+    if (urlValue && !defaultValues?.title) {
+      handleUrlAutofill(urlValue);
+    }
+  }, [urlValue, handleUrlAutofill, defaultValues?.title]);
 
   const handleFormSubmit = (data: FormData) => {
     onSubmit({
@@ -71,24 +117,27 @@ export default function ItemForm({
   };
 
   return (
-    <Modal
-      open={open}
-      onOpenChange={onOpenChange}
-      title={title}
-    >
+    <Modal open={open} onOpenChange={onOpenChange} title={title}>
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+        <div className="relative">
+          <Input
+            label="Ссылка на товар"
+            placeholder="https://... (название подтянется автоматически)"
+            error={errors.url?.message}
+            {...register("url")}
+          />
+          {parseUrl.isPending && (
+            <div className="absolute right-3 top-8 text-text-muted">
+              <Loader2 size={16} className="animate-spin" />
+            </div>
+          )}
+        </div>
+
         <Input
           label="Название"
           placeholder="Наушники Sony WH-1000XM5"
           error={errors.title?.message}
           {...register("title")}
-        />
-
-        <Input
-          label="Ссылка на товар"
-          placeholder="https://..."
-          error={errors.url?.message}
-          {...register("url")}
         />
 
         <Input
