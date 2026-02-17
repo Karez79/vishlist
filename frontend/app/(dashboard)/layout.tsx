@@ -1,0 +1,68 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import { LogOut, Gift } from "lucide-react";
+import { useAuthStore } from "@/lib/store";
+import { useLogout } from "@/hooks/useAuth";
+import { Button } from "@/components/ui";
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const token = useAuthStore((s) => s.token);
+  const user = useAuthStore((s) => s.user);
+  const handleLogout = useLogout();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !token) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+    }
+  }, [mounted, token, router, pathname]);
+
+  // Show nothing until hydrated to avoid flash
+  if (!mounted || !token) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-sm border-b border-gray-100">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 text-primary font-heading font-bold text-xl"
+          >
+            <Gift size={24} />
+            Vishlist
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-text-muted hidden sm:inline">
+              {user?.name}
+            </span>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut size={18} />
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-6">{children}</main>
+    </div>
+  );
+}

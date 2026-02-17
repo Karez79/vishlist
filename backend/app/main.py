@@ -6,8 +6,22 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.api.endpoints import health
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+
+from app.api.endpoints import auth, health
 from app.core.config import settings
+
+
+def get_real_ip(request: Request) -> str:
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return get_remote_address(request)
+
+
+limiter = Limiter(key_func=get_real_ip)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -16,6 +30,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Vishlist API", version="1.0.0")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Session middleware (required for OAuth state)
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
@@ -61,5 +77,6 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 # Routers
 app.include_router(health.router, prefix="/api", tags=["health"])
+app.include_router(auth.router, prefix="/api", tags=["auth"])
 
 logger.info("Vishlist API started")
