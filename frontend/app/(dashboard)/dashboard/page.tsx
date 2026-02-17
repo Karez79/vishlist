@@ -59,8 +59,15 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Мои вишлисты</h1>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Мои вишлисты</h1>
+          <p className="text-text-muted text-sm mt-1">
+            {wishlists.length > 0
+              ? `${wishlists.length} ${wishlists.length === 1 ? "вишлист" : wishlists.length < 5 ? "вишлиста" : "вишлистов"}`
+              : "Создайте первый вишлист"}
+          </p>
+        </div>
         <Button onClick={() => router.push("/wishlists/new")}>
           <Plus size={18} className="mr-1.5" />
           Создать

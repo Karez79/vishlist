@@ -188,7 +188,7 @@ export default function ItemForm({
               <textarea
                 rows={2}
                 placeholder="Хочу именно синий цвет"
-                className="w-full px-4 py-2.5 rounded-2xl bg-fill text-text border border-transparent placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-surface transition-all duration-200 resize-none"
+                className="w-full px-4 py-2.5 rounded-2xl bg-surface text-text border border-separator placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 resize-none"
                 {...register("note")}
               />
             </div>
