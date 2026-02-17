@@ -12,6 +12,7 @@ import Countdown from "@/components/features/Countdown";
 import ReserveModal from "@/components/features/ReserveModal";
 import ContributeModal from "@/components/features/ContributeModal";
 import GuestRecovery from "@/components/features/GuestRecovery";
+import { useRouter } from "next/navigation";
 import { usePublicWishlist } from "@/hooks/usePublicWishlist";
 import { useGuestToken } from "@/hooks/useGuestToken";
 import {
@@ -37,6 +38,7 @@ export default function WishlistContent({
   initialData,
   slug,
 }: WishlistContentProps) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const {
     data,
@@ -275,6 +277,13 @@ export default function WishlistContent({
                     item={item}
                     isOwner={wishlist.is_owner}
                     index={index}
+                    onCardTap={
+                      wishlist.is_owner
+                        ? () => router.push(`/wishlists/${wishlist.id}`)
+                        : item.url
+                          ? () => window.open(item.url!, "_blank")
+                          : undefined
+                    }
                     onReserve={() => setReserveModalItem(item)}
                     onContribute={() => setContributeModalItem(item)}
                     onCancelReservation={() => handleCancelReservation(item.id)}

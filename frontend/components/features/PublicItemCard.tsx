@@ -13,6 +13,7 @@ interface PublicItemCardProps {
   item: WishlistItem;
   isOwner: boolean;
   index?: number;
+  onCardTap?: () => void;
   onReserve?: () => void;
   onContribute?: () => void;
   onCancelReservation?: () => void;
@@ -23,6 +24,7 @@ export default function PublicItemCard({
   item,
   isOwner,
   index = 0,
+  onCardTap,
   onReserve,
   onContribute,
   onCancelReservation,
@@ -41,7 +43,8 @@ export default function PublicItemCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: Math.min(index * 0.06, 0.4) }}
-      className="bg-surface rounded-3xl border border-separator/60 overflow-hidden transition-all duration-200 active:scale-[0.98] hover:border-primary/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
+      className={`bg-surface rounded-3xl border border-separator/60 overflow-hidden transition-all duration-200 active:scale-[0.98] hover:border-primary/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] ${onCardTap ? "cursor-pointer" : ""}`}
+      onClick={onCardTap}
     >
       {/* Image */}
       {item.image_url && !imgError ? (
@@ -142,7 +145,7 @@ export default function PublicItemCard({
 
         {/* Action buttons */}
         {!isOwner && !item.is_reserved && !isFullyCollected && (
-          <div className="flex flex-col sm:flex-row gap-2 mt-3">
+          <div className="flex flex-col sm:flex-row gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
             {!hasContributions && onReserve && (
               <Button size="md" onClick={onReserve} className="flex-1">
                 Зарезервировать
@@ -163,7 +166,7 @@ export default function PublicItemCard({
 
         {/* Cancel buttons */}
         {!isOwner && myReservation && onCancelReservation && (
-          <div className="mt-3">
+          <div className="mt-3" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={onCancelReservation}
               className="text-xs text-error/60 hover:text-error active:opacity-70 transition-colors py-1"
@@ -174,7 +177,7 @@ export default function PublicItemCard({
         )}
 
         {!isOwner && myContributions.length > 0 && onCancelContribution && (
-          <div className="mt-2 space-y-1">
+          <div className="mt-2 space-y-1" onClick={(e) => e.stopPropagation()}>
             {myContributions.map((c) => (
               <button
                 key={c.id}
