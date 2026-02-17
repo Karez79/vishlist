@@ -4,8 +4,8 @@ import { useState, useRef } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Link as LinkIcon, ChevronDown, ChevronUp, ImageIcon, MessageSquare } from "lucide-react";
-import { Button, Input, Modal } from "@/components/ui";
+import { Loader2, ChevronDown, ChevronUp, ImageIcon } from "lucide-react";
+import { Button, Input, Textarea, Modal } from "@/components/ui";
 import ImageUpload from "@/components/ui/ImageUpload";
 import { useParseUrl } from "@/hooks/useParseUrl";
 
@@ -176,18 +176,12 @@ export default function ItemForm({
               </div>
             </div>
 
-            <div>
-              <label className="flex items-center gap-1.5 text-sm font-medium text-text mb-1.5">
-                <MessageSquare size={14} className="text-text-muted" />
-                Заметка для друзей
-              </label>
-              <textarea
-                rows={2}
-                placeholder="Хочу именно синий цвет"
-                className="w-full px-4 py-2.5 rounded-2xl bg-surface text-text border border-separator placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 resize-none"
-                {...register("note")}
-              />
-            </div>
+            <Textarea
+              label="Заметка для друзей"
+              rows={2}
+              placeholder="Хочу именно синий цвет"
+              {...register("note")}
+            />
           </div>
         )}
 

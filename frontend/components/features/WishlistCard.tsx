@@ -77,7 +77,7 @@ export default function WishlistCard({
       >
         {onArchiveToggle && (
           <button
-            className="text-xs text-text-muted hover:text-text flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-fill transition-all"
+            className="text-xs text-text-muted hover:text-text flex items-center gap-1 px-2 py-1 rounded-xl hover:bg-fill transition-all"
             onClick={() => onArchiveToggle(wishlist.id, !wishlist.is_archived)}
           >
             {wishlist.is_archived ? (

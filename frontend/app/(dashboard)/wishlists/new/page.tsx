@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowLeft, Gift } from "lucide-react";
-import { Button, Input, DatePicker } from "@/components/ui";
+import { Button, Input, Textarea, DatePicker } from "@/components/ui";
 import { useCreateWishlist } from "@/hooks/useWishlists";
 
 const EMOJIS = ["🎁", "🎂", "🎄", "💍", "🎓", "🏠", "✈️", "🎉", "💝", "🧸", "📱", "👟"];
@@ -103,22 +103,12 @@ export default function NewWishlistPage() {
             {...register("title")}
           />
 
-          <div>
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-text mb-1.5"
-            >
-              Описание
-              <span className="text-text-muted font-normal"> (необязательно)</span>
-            </label>
-            <textarea
-              id="description"
-              rows={3}
-              placeholder="Расскажите друзьям о событии..."
-              className="w-full px-4 py-2.5 rounded-2xl bg-surface text-text border border-separator placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 resize-none"
-              {...register("description")}
-            />
-          </div>
+          <Textarea
+            label="Описание (необязательно)"
+            rows={3}
+            placeholder="Расскажите друзьям о событии..."
+            {...register("description")}
+          />
 
           <DatePicker
             label="Дата события"

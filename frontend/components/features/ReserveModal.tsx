@@ -3,6 +3,7 @@
 import { useState } from "react";
 import confetti from "canvas-confetti";
 import { Button, Input, Modal } from "@/components/ui";
+import { CONFETTI_COLORS } from "@/lib/constants";
 
 interface ReserveModalProps {
   open: boolean;
@@ -40,7 +41,7 @@ export default function ReserveModal({
         particleCount: 80,
         spread: 60,
         origin: { y: 0.6 },
-        colors: ["#007AFF", "#5856D6", "#34C759", "#FF9F0A"],
+        colors: CONFETTI_COLORS,
       });
     } catch {
       // Error handled by mutation

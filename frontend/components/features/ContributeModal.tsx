@@ -3,6 +3,7 @@
 import { useState } from "react";
 import confetti from "canvas-confetti";
 import { Button, Input, Modal } from "@/components/ui";
+import { CONFETTI_COLORS } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 
 interface ContributeModalProps {
@@ -53,7 +54,7 @@ export default function ContributeModal({
         particleCount: 80,
         spread: 60,
         origin: { y: 0.6 },
-        colors: ["#007AFF", "#5856D6", "#34C759", "#FF9F0A"],
+        colors: CONFETTI_COLORS,
       });
     } catch {
       // Error handled by mutation
@@ -139,10 +140,10 @@ export default function ContributeModal({
                 key={preset}
                 type="button"
                 onClick={() => setAmount(String(preset))}
-                className={`px-3 py-1.5 text-sm rounded-2xl border transition-all duration-150 ${
+                className={`px-3.5 py-1.5 text-sm rounded-xl border transition-all duration-200 active:scale-95 ${
                   amount === String(preset)
                     ? "border-primary bg-primary text-white"
-                    : "border-separator text-text-muted hover:border-text-muted"
+                    : "border-separator bg-surface text-text-muted hover:bg-fill"
                 }`}
               >
                 {formatPrice(preset)}
@@ -151,10 +152,10 @@ export default function ContributeModal({
             <button
               type="button"
               onClick={() => setAmount(String(remaining))}
-              className={`px-3 py-1.5 text-sm rounded-2xl border transition-all duration-150 ${
+              className={`px-3.5 py-1.5 text-sm rounded-xl border transition-all duration-200 active:scale-95 ${
                 amount === String(remaining)
                   ? "border-primary bg-primary text-white"
-                  : "border-separator text-text-muted hover:border-text-muted"
+                  : "border-separator bg-surface text-text-muted hover:bg-fill"
               }`}
             >
               Вся сумма

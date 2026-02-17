@@ -93,7 +93,7 @@ export default function ItemCard({
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="text-xs text-text-muted hover:text-text hover:bg-fill flex items-center gap-1 px-2 py-1 rounded-lg transition-all"
+                className="text-xs text-text-muted hover:text-text hover:bg-fill flex items-center gap-1 px-2 py-1 rounded-xl transition-all"
               >
                 <Pencil size={12} /> Редактировать
               </button>
@@ -101,7 +101,7 @@ export default function ItemCard({
             {onDelete && (
               <button
                 onClick={onDelete}
-                className="text-xs text-error/60 hover:text-error hover:bg-error/5 flex items-center gap-1 px-2 py-1 rounded-lg transition-all"
+                className="text-xs text-error/60 hover:text-error hover:bg-error/5 flex items-center gap-1 px-2 py-1 rounded-xl transition-all"
               >
                 <Trash2 size={12} /> Удалить
               </button>

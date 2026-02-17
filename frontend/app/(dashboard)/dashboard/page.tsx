@@ -134,9 +134,9 @@ export default function DashboardPage() {
                 <button
                   key={i + 1}
                   onClick={() => setPage(i + 1)}
-                  className={`px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all ${
+                  className={`w-9 h-9 rounded-xl text-sm font-medium transition-all duration-200 active:scale-95 ${
                     page === i + 1
-                      ? "bg-primary text-white shadow-sm"
+                      ? "bg-primary text-white"
                       : "bg-surface text-text-muted hover:bg-fill border border-separator/60"
                   }`}
                 >

@@ -99,7 +99,7 @@ export default function Modal({
                       </Dialog.Description>
                     )}
                   </div>
-                  <Dialog.Close className="p-1.5 rounded-xl hover:bg-fill transition-colors text-text-muted hover:text-text" aria-label="Закрыть">
+                  <Dialog.Close className="p-2 -mr-1 rounded-xl hover:bg-fill transition-colors text-text-muted hover:text-text" aria-label="Закрыть">
                     <X size={20} />
                   </Dialog.Close>
                 </div>

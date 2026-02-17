@@ -181,7 +181,7 @@ export default function PublicItemCard({
             <button
               key={c.id}
               onClick={() => onCancelContribution(c.id)}
-              className="text-xs text-error/60 hover:text-error transition-colors px-2 py-1 rounded-lg hover:bg-error/5"
+              className="text-xs text-error/60 hover:text-error transition-colors px-2 py-1 rounded-xl hover:bg-error/5"
             >
               Отменить вклад ({formatPrice(c.amount)})
             </button>
