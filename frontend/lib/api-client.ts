@@ -27,13 +27,15 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor: handle 401 (skip redirect on public pages)
+// Response interceptor: handle 401 (skip auth endpoints and public pages)
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && typeof window !== "undefined") {
+      const url = error.config?.url || "";
+      const isAuthEndpoint = url.startsWith("/auth/");
       const isPublicPage = window.location.pathname.startsWith("/w/");
-      if (!isPublicPage) {
+      if (!isAuthEndpoint && !isPublicPage) {
         localStorage.removeItem("auth-storage");
         window.location.href = "/login";
       }
