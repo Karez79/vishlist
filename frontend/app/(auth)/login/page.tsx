@@ -66,50 +66,52 @@ function LoginContent() {
         <p className="text-text-muted">Войдите в свой аккаунт</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Input
-          label="Email"
-          type="email"
-          placeholder="you@example.com"
-          error={errors.email?.message}
-          {...register("email")}
-        />
-        <Input
-          label="Пароль"
-          type="password"
-          placeholder="Минимум 8 символов"
-          error={errors.password?.message}
-          {...register("password")}
-        />
-        <Button
-          type="submit"
-          className="w-full"
-          size="lg"
-          loading={loginMutation.isPending}
-        >
-          Войти
-        </Button>
-      </form>
-
-      {GOOGLE_AUTH_ENABLED && (
-        <>
-          <div className="flex items-center my-6">
-            <div className="flex-1 border-t border-separator" />
-            <span className="px-3 text-sm text-text-muted">или</span>
-            <div className="flex-1 border-t border-separator" />
-          </div>
+      <div className="bg-surface rounded-3xl shadow-[0_2px_8px_rgba(0,0,0,0.06),0_0_1px_rgba(0,0,0,0.1)] p-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <Input
+            label="Email"
+            type="email"
+            placeholder="you@example.com"
+            error={errors.email?.message}
+            {...register("email")}
+          />
+          <Input
+            label="Пароль"
+            type="password"
+            placeholder="Минимум 8 символов"
+            error={errors.password?.message}
+            {...register("password")}
+          />
           <Button
-            variant="secondary"
+            type="submit"
             className="w-full"
             size="lg"
-            onClick={() => {
-              window.location.href = `${API_URL}/api/auth/google`;
-            }}
+            loading={loginMutation.isPending}
           >
-            Войти через Google
+            Войти
           </Button>
-        </>
-      )}
+        </form>
+
+        {GOOGLE_AUTH_ENABLED && (
+          <>
+            <div className="flex items-center my-6">
+              <div className="flex-1 border-t border-separator" />
+              <span className="px-3 text-sm text-text-muted">или</span>
+              <div className="flex-1 border-t border-separator" />
+            </div>
+            <Button
+              variant="secondary"
+              className="w-full"
+              size="lg"
+              onClick={() => {
+                window.location.href = `${API_URL}/api/auth/google`;
+              }}
+            >
+              Войти через Google
+            </Button>
+          </>
+        )}
+      </div>
 
       <p className="text-center text-sm text-text-muted mt-6">
         Нет аккаунта?{" "}

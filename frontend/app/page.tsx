@@ -58,8 +58,8 @@ export default function Home() {
 
         <div className="grid md:grid-cols-3 gap-10">
           {STEPS.map((step, i) => (
-            <div key={i} className="text-center">
-              <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-fill flex items-center justify-center">
+            <div key={i} className="group text-center">
+              <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-primary/8 flex items-center justify-center group-hover:bg-primary/12 group-hover:scale-105 transition-all duration-300">
                 <step.icon size={28} className="text-primary" />
               </div>
               <h3 className="text-lg font-semibold tracking-tight mb-2">{step.title}</h3>
@@ -71,21 +71,27 @@ export default function Home() {
 
       {/* Features */}
       <section className="max-w-4xl mx-auto px-4 py-24">
-        <div className="grid sm:grid-cols-2 gap-4">
+        <h2 className="text-3xl font-bold tracking-tight text-center mb-16">
+          Всё что нужно
+        </h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {[
-            { emoji: "🎉", text: "Конфетти при резервации — маленькая радость" },
-            { emoji: "💸", text: "Сбор средств на дорогие подарки с прогресс-баром" },
-            { emoji: "🔒", text: "Владелец не видит кто что зарезервировал" },
-            { emoji: "⚡", text: "Реалтайм — все обновления мгновенно" },
-            { emoji: "📱", text: "Работает на телефоне — поделитесь в мессенджере" },
-            { emoji: "🔗", text: "Автозаполнение — вставьте ссылку на товар" },
+            { emoji: "🎉", title: "Конфетти", text: "Маленькая радость при резервации подарка" },
+            { emoji: "💸", title: "Совместный сбор", text: "Скидывайтесь на дорогие подарки с прогресс-баром" },
+            { emoji: "🔒", title: "Сюрприз", text: "Владелец не видит кто что зарезервировал" },
+            { emoji: "⚡", title: "Реалтайм", text: "Все обновления мгновенно — никаких повторов" },
+            { emoji: "📱", title: "Мобильный", text: "Работает на телефоне — поделитесь в мессенджере" },
+            { emoji: "🔗", title: "Автозаполнение", text: "Вставьте ссылку — название и картинка подтянутся" },
           ].map((feature, i) => (
             <div
               key={i}
-              className="flex items-start gap-3 p-5 rounded-2xl bg-surface shadow-[0_1px_3px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.06)]"
+              className="group p-6 rounded-3xl bg-surface border border-separator/50 hover:border-primary/20 hover:shadow-[0_8px_30px_rgba(0,122,255,0.08)] transition-all duration-300"
             >
-              <span className="text-2xl">{feature.emoji}</span>
-              <p className="text-sm text-text leading-relaxed">{feature.text}</p>
+              <div className="w-12 h-12 rounded-2xl bg-fill flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                {feature.emoji}
+              </div>
+              <h3 className="font-semibold text-text mb-1">{feature.title}</h3>
+              <p className="text-sm text-text-muted leading-relaxed">{feature.text}</p>
             </div>
           ))}
         </div>
