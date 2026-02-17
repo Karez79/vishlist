@@ -36,36 +36,36 @@ export default function ItemCard({
         </div>
       )}
 
-      {/* Image */}
-      <div className="relative w-20 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-fill">
+      {/* Image — bigger for products */}
+      <div className="relative w-24 h-28 rounded-2xl overflow-hidden flex-shrink-0 bg-fill">
         {item.image_url && !imgError ? (
           <Image
             src={item.image_url}
             alt={item.title}
             fill
             className="object-contain"
-            sizes="80px"
+            sizes="96px"
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-2xl">
+          <div className="w-full h-full flex items-center justify-center text-3xl opacity-30">
             🎁
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 py-0.5">
         <div className="flex items-start justify-between gap-2">
-          <h4 className="font-medium text-text line-clamp-2" title={item.title}>
+          <h4 className="font-medium text-text line-clamp-2 leading-snug" title={item.title}>
             {item.title}
           </h4>
           {getStatusBadge(item)}
         </div>
 
-        <div className="flex items-center gap-3 mt-1.5">
+        <div className="flex items-center gap-3 mt-2">
           {item.price != null && (
-            <span className="text-sm font-semibold text-text">
+            <span className="text-sm font-bold text-text">
               {formatPrice(item.price)}
             </span>
           )}
@@ -93,7 +93,7 @@ export default function ItemCard({
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="text-xs text-text-muted hover:text-text hover:bg-fill flex items-center gap-1 px-2 py-1 rounded-xl transition-all"
+                className="text-xs text-text-muted hover:text-text hover:bg-fill flex items-center gap-1 px-2.5 py-1.5 rounded-xl transition-all"
               >
                 <Pencil size={12} /> Редактировать
               </button>
@@ -101,7 +101,7 @@ export default function ItemCard({
             {onDelete && (
               <button
                 onClick={onDelete}
-                className="text-xs text-error/60 hover:text-error hover:bg-error/5 flex items-center gap-1 px-2 py-1 rounded-xl transition-all"
+                className="text-xs text-error/60 hover:text-error hover:bg-error/5 flex items-center gap-1 px-2.5 py-1.5 rounded-xl transition-all"
               >
                 <Trash2 size={12} /> Удалить
               </button>

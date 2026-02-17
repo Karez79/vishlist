@@ -90,13 +90,13 @@ export default function ImageUpload({
   if (value) {
     return (
       <div className={cn("relative w-full", className)}>
-        <div className="relative w-full h-32 rounded-2xl overflow-hidden border border-separator">
+        <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-separator bg-fill">
           <Image
             src={value}
             alt="Preview"
             fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 300px"
+            className="object-contain"
+            sizes="(max-width: 768px) 100vw, 400px"
           />
           <button
             type="button"
