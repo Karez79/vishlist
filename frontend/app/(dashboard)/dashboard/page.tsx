@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Button, EmptyState, Skeleton } from "@/components/ui";
 import WishlistCard from "@/components/features/WishlistCard";
-import WishlistEditModal from "@/components/features/WishlistEditModal";
 import { useAuthStore } from "@/lib/store";
 import {
   useWishlists,
@@ -41,8 +40,6 @@ export default function DashboardPage() {
   const deleteMutation = useDeleteWishlist();
   const restoreMutation = useRestoreWishlist();
   const archiveMutation = useArchiveWishlist();
-
-  const [editingWishlistId, setEditingWishlistId] = useState<string | null>(null);
 
   const handleDelete = (id: string) => {
     deleteMutation.mutate(id, {
@@ -88,7 +85,6 @@ export default function DashboardPage() {
 
   const wishlists = data?.items || [];
   const firstName = getFirstName(user?.name);
-  const editingWishlist = wishlists.find((w) => w.id === editingWishlistId);
 
   return (
     <div className="pt-4">
@@ -138,7 +134,6 @@ export default function DashboardPage() {
               >
                 <WishlistCard
                   wishlist={w}
-                  onEdit={setEditingWishlistId}
                   onDelete={handleDelete}
                   onArchiveToggle={handleArchiveToggle}
                 />
@@ -172,14 +167,6 @@ export default function DashboardPage() {
             </div>
           )}
         </>
-      )}
-      {/* Edit wishlist modal */}
-      {editingWishlist && (
-        <WishlistEditModal
-          open={!!editingWishlistId}
-          onOpenChange={(open) => { if (!open) setEditingWishlistId(null); }}
-          wishlist={editingWishlist}
-        />
       )}
     </div>
   );
