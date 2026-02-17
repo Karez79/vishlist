@@ -123,9 +123,9 @@ export default function WishlistEditPage() {
       {/* Back button */}
       <button
         onClick={() => router.push("/dashboard")}
-        className="flex items-center gap-1.5 text-text-muted hover:text-text transition-colors text-sm mb-8"
+        className="flex items-center gap-2 text-text-muted hover:text-text transition-colors text-base font-medium mb-8"
       >
-        <ArrowLeft size={16} />
+        <ArrowLeft size={20} />
         Назад
       </button>
 
