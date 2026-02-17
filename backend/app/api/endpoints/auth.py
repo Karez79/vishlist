@@ -150,12 +150,13 @@ async def google_callback(request: Request, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
 
     if user:
-        # Merge: attach OAuth to existing account
+        # Merge: attach OAuth to existing email/password account
         if not user.oauth_provider:
             user.oauth_provider = "google"
             user.oauth_id = oauth_id
         if avatar_url and not user.avatar_url:
             user.avatar_url = avatar_url
+        await db.flush()
     else:
         user = User(
             email=email,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/lib/store";
@@ -10,16 +10,24 @@ function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const processed = useRef(false);
 
   useEffect(() => {
+    if (processed.current) return;
+
     const token = searchParams.get("token");
     if (!token) {
       router.push("/login?error=oauth_failed");
       return;
     }
 
+    processed.current = true;
+
     // Remove token from URL for security
     window.history.replaceState({}, "", "/callback");
+
+    // Clear any stale auth before setting new one
+    localStorage.removeItem("auth-storage");
 
     // Fetch user data and store auth
     apiClient

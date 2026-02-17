@@ -9,9 +9,9 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor: attach auth token
+// Request interceptor: attach auth token (skip if already set explicitly)
 apiClient.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && !config.headers.Authorization) {
     const authStorage = localStorage.getItem("auth-storage");
     if (authStorage) {
       try {
