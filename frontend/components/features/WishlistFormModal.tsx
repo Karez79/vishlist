@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Gift } from "lucide-react";
 import { Button, Input, Textarea, Modal, DatePicker } from "@/components/ui";
-import { useUpdateWishlist } from "@/hooks/useWishlists";
+import { useCreateWishlist, useUpdateWishlist } from "@/hooks/useWishlists";
 import { toast } from "sonner";
 
 const EMOJI_CATEGORIES = [
@@ -30,10 +32,10 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-interface WishlistEditModalProps {
+interface WishlistFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  wishlist: {
+  wishlist?: {
     id: string;
     title: string;
     description?: string | null;
@@ -42,14 +44,19 @@ interface WishlistEditModalProps {
   };
 }
 
-export default function WishlistEditModal({
+export default function WishlistFormModal({
   open,
   onOpenChange,
   wishlist,
-}: WishlistEditModalProps) {
-  const [emoji, setEmoji] = useState(wishlist.emoji);
-  const [eventDate, setEventDate] = useState(wishlist.event_date || "");
-  const updateWishlist = useUpdateWishlist(wishlist.id);
+}: WishlistFormModalProps) {
+  const router = useRouter();
+  const isEdit = !!wishlist;
+
+  const [emoji, setEmoji] = useState(wishlist?.emoji || "🎁");
+  const [eventDate, setEventDate] = useState(wishlist?.event_date || "");
+
+  const createWishlist = useCreateWishlist();
+  const updateWishlist = useUpdateWishlist(wishlist?.id || "");
 
   const {
     register,
@@ -59,41 +66,59 @@ export default function WishlistEditModal({
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      title: wishlist.title,
-      description: wishlist.description || "",
+      title: wishlist?.title || "",
+      description: wishlist?.description || "",
     },
   });
 
   useEffect(() => {
     if (open) {
       reset({
-        title: wishlist.title,
-        description: wishlist.description || "",
+        title: wishlist?.title || "",
+        description: wishlist?.description || "",
       });
-      setEmoji(wishlist.emoji);
-      setEventDate(wishlist.event_date || "");
+      setEmoji(wishlist?.emoji || "🎁");
+      setEventDate(wishlist?.event_date || "");
     }
   }, [open, wishlist, reset]);
 
   const onSubmit = (data: FormData) => {
-    updateWishlist.mutate(
-      {
-        title: data.title,
-        description: data.description || undefined,
-        emoji,
-        event_date: eventDate || null,
-      },
-      {
+    const payload = {
+      title: data.title,
+      description: data.description || undefined,
+      emoji,
+      event_date: eventDate || (isEdit ? null : undefined),
+    };
+
+    if (isEdit) {
+      updateWishlist.mutate(payload, {
         onSuccess: () => {
           toast.success("Вишлист обновлён");
           onOpenChange(false);
         },
-      }
-    );
+      });
+    } else {
+      createWishlist.mutate(
+        { ...payload, event_date: eventDate || undefined },
+        {
+          onSuccess: (result) => {
+            onOpenChange(false);
+            router.push(`/wishlists/${result.id}`);
+          },
+        }
+      );
+    }
   };
 
+  const isPending = isEdit ? updateWishlist.isPending : createWishlist.isPending;
+
   return (
-    <Modal open={open} onOpenChange={onOpenChange} title="Редактировать вишлист">
+    <Modal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={isEdit ? "Редактировать вишлист" : "Новый вишлист"}
+      description={isEdit ? undefined : "Создайте список желаний и поделитесь с друзьями"}
+    >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-text mb-3">
@@ -149,13 +174,15 @@ export default function WishlistEditModal({
           onChange={setEventDate}
         />
 
-        <Button
-          type="submit"
-          className="w-full"
-          size="lg"
-          loading={updateWishlist.isPending}
-        >
-          Сохранить
+        <Button type="submit" className="w-full" size="lg" loading={isPending}>
+          {isEdit ? (
+            "Сохранить"
+          ) : (
+            <>
+              <Gift size={18} className="mr-1.5" />
+              Создать вишлист
+            </>
+          )}
         </Button>
       </form>
     </Modal>

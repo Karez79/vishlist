@@ -23,7 +23,7 @@ import { Button, EmptyState, Skeleton } from "@/components/ui";
 import SortableItemCard from "@/components/features/SortableItemCard";
 import ItemForm from "@/components/features/ItemForm";
 import ShareButton from "@/components/features/ShareButton";
-import WishlistEditModal from "@/components/features/WishlistEditModal";
+import WishlistFormModal from "@/components/features/WishlistFormModal";
 import { useWishlist } from "@/hooks/useWishlists";
 import {
   useItems,
@@ -239,7 +239,7 @@ export default function WishlistEditPage() {
 
       {/* Edit wishlist modal */}
       {wishlist && (
-        <WishlistEditModal
+        <WishlistFormModal
           open={editWishlistOpen}
           onOpenChange={setEditWishlistOpen}
           wishlist={wishlist}

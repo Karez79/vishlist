@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Plus, Gift, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Button, EmptyState, Skeleton } from "@/components/ui";
 import WishlistCard from "@/components/features/WishlistCard";
+import WishlistFormModal from "@/components/features/WishlistFormModal";
 import { useAuthStore } from "@/lib/store";
 import {
   useWishlists,
@@ -33,9 +33,9 @@ function getFirstName(name: string | undefined): string {
 }
 
 export default function DashboardPage() {
-  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const [page, setPage] = useState(1);
+  const [createOpen, setCreateOpen] = useState(false);
   const { data, isLoading } = useWishlists(page);
   const deleteMutation = useDeleteWishlist();
   const restoreMutation = useRestoreWishlist();
@@ -101,7 +101,7 @@ export default function DashboardPage() {
                 : "Создайте первый вишлист и поделитесь с друзьями"}
             </p>
           </div>
-          <Button onClick={() => router.push("/wishlists/new")} size="lg" className="flex-shrink-0">
+          <Button onClick={() => setCreateOpen(true)} size="lg" className="flex-shrink-0">
             <Plus size={18} className="sm:mr-1.5" />
             <span className="hidden sm:inline">Создать</span>
           </Button>
@@ -115,7 +115,7 @@ export default function DashboardPage() {
             title="У вас пока нет вишлистов"
             description="Создайте список желаний и поделитесь с друзьями — они смогут выбрать подарки без повторов"
             actionLabel="Создать первый вишлист"
-            onAction={() => router.push("/wishlists/new")}
+            onAction={() => setCreateOpen(true)}
           />
         </div>
       ) : (
@@ -168,6 +168,12 @@ export default function DashboardPage() {
           )}
         </>
       )}
+
+      {/* Create wishlist modal */}
+      <WishlistFormModal
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+      />
     </div>
   );
 }
