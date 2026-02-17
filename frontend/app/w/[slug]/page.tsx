@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -78,5 +79,9 @@ export default async function PublicWishlistPage({
     );
   }
 
-  return <WishlistContent initialData={data} slug={slug} />;
+  return (
+    <Suspense>
+      <WishlistContent initialData={data} slug={slug} />
+    </Suspense>
+  );
 }

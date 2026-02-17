@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Calendar } from "lucide-react";
 
 interface CountdownProps {
@@ -8,13 +8,20 @@ interface CountdownProps {
 }
 
 export default function Countdown({ eventDate }: CountdownProps) {
-  const daysLeft = useMemo(() => {
+  const calcDays = useCallback(() => {
     const event = new Date(eventDate + "T00:00:00");
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const diff = event.getTime() - now.getTime();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   }, [eventDate]);
+
+  const [daysLeft, setDaysLeft] = useState(calcDays);
+
+  useEffect(() => {
+    const id = setInterval(() => setDaysLeft(calcDays()), 60_000);
+    return () => clearInterval(id);
+  }, [calcDays]);
 
   // Don't show countdown for past dates
   if (daysLeft < 0) return null;

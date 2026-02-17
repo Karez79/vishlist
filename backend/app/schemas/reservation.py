@@ -5,7 +5,7 @@ GUEST_NAME_PATTERN = r"^[\w\s\-\.]+$"
 
 
 class ReserveRequest(BaseModel):
-    guest_name: str = Field(min_length=1, max_length=50, pattern=GUEST_NAME_PATTERN)
+    guest_name: str | None = Field(None, min_length=1, max_length=50, pattern=GUEST_NAME_PATTERN)
 
 
 class ReserveResponse(BaseModel):
@@ -22,7 +22,7 @@ class UpdateGuestEmailRequest(BaseModel):
 
 
 class ContributeRequest(BaseModel):
-    guest_name: str = Field(min_length=1, max_length=50, pattern=GUEST_NAME_PATTERN)
+    guest_name: str | None = Field(None, min_length=1, max_length=50, pattern=GUEST_NAME_PATTERN)
     amount: int = Field(ge=1)
 
 

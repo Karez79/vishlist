@@ -28,8 +28,12 @@ export default function ShareButton({
         // User cancelled share
       }
     } else {
-      await navigator.clipboard.writeText(url);
-      toast.success("Ссылка скопирована!");
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success("Ссылка скопирована!");
+      } catch {
+        toast.error("Не удалось скопировать ссылку");
+      }
     }
   };
 
