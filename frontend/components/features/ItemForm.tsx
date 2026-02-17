@@ -102,6 +102,7 @@ export default function ItemForm({
       note: data.note || undefined,
     });
     reset();
+    lastParsedUrl.current = "";
     onOpenChange(false);
   };
 
