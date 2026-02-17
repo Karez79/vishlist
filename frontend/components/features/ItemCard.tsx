@@ -89,11 +89,11 @@ export default function ItemCard({
 
         {/* Owner actions */}
         {isOwner && (
-          <div className="flex items-center gap-1 mt-2.5">
+          <div className="flex flex-wrap items-center gap-1 mt-2.5">
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="text-xs text-text-muted hover:text-text hover:bg-fill flex items-center gap-1 px-2.5 py-1.5 rounded-xl transition-all"
+                className="text-xs text-text-muted hover:text-text hover:bg-fill flex items-center gap-1 px-2.5 py-1.5 rounded-xl transition-all whitespace-nowrap"
               >
                 <Pencil size={12} /> Редактировать
               </button>
@@ -101,7 +101,7 @@ export default function ItemCard({
             {onDelete && (
               <button
                 onClick={onDelete}
-                className="text-xs text-error/60 hover:text-error hover:bg-error/5 flex items-center gap-1 px-2.5 py-1.5 rounded-xl transition-all"
+                className="text-xs text-error/60 hover:text-error hover:bg-error/5 flex items-center gap-1 px-2.5 py-1.5 rounded-xl transition-all whitespace-nowrap"
               >
                 <Trash2 size={12} /> Удалить
               </button>
