@@ -121,18 +121,18 @@ export default function WishlistEditPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto pt-4">
+    <div className="max-w-4xl mx-auto pt-2 sm:pt-4">
       {/* Back button */}
       <button
         onClick={() => router.push("/dashboard")}
-        className="flex items-center gap-2 text-text-muted hover:text-text transition-colors text-base font-medium mb-8"
+        className="flex items-center gap-2 text-text-muted hover:text-text transition-colors text-base font-medium mb-4 sm:mb-6"
       >
         <ArrowLeft size={20} />
         Назад
       </button>
 
       {/* Wishlist header */}
-      <div className="flex items-center gap-4 mb-8 bg-surface rounded-3xl border border-separator/60 p-5">
+      <div className="flex items-center gap-4 mb-4 sm:mb-6 bg-surface rounded-3xl border border-separator/60 p-5">
         <div className="w-14 h-14 rounded-2xl bg-primary/8 flex items-center justify-center text-2xl flex-shrink-0">
           {wishlist.emoji}
         </div>
