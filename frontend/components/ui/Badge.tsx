@@ -14,18 +14,19 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  available: "bg-success/10 text-success",
-  reserved: "bg-reserved/10 text-reserved",
-  collecting: "bg-gold/10 text-gold",
-  collected: "bg-success/10 text-success",
-  archived: "bg-fill text-text-muted",
+  available: "bg-white/80 text-success ring-success/20",
+  reserved: "bg-white/80 text-reserved ring-reserved/20",
+  collecting: "bg-white/80 text-gold ring-gold/20",
+  collected: "bg-white/80 text-success ring-success/20",
+  archived: "bg-white/80 text-text-muted ring-separator",
 };
 
 export default function Badge({ variant, children, className }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold",
+        "backdrop-blur-md ring-1 shadow-sm",
         variantStyles[variant],
         className
       )}

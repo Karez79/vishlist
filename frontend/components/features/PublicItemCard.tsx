@@ -41,9 +41,9 @@ export default function PublicItemCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: Math.min(index * 0.06, 0.4) }}
-      className="bg-surface rounded-3xl border border-separator/60 overflow-hidden transition-all duration-200 hover:border-primary/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
+      className="bg-surface rounded-3xl border border-separator/60 overflow-hidden transition-all duration-200 active:scale-[0.98] hover:border-primary/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
     >
-      {/* Image — large, portrait-friendly */}
+      {/* Image */}
       {item.image_url && !imgError ? (
         <div className="relative w-full aspect-[4/3] bg-fill">
           <Image
@@ -51,32 +51,31 @@ export default function PublicItemCard({
             alt={item.title}
             fill
             className="object-contain"
-            sizes="(max-width: 640px) 50vw, 300px"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
             onError={() => setImgError(true)}
           />
-          {/* Status badge overlay */}
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3">
             {getStatusBadge(item)}
           </div>
         </div>
       ) : (
         <div className="relative w-full aspect-[4/3] bg-fill flex items-center justify-center">
           <span className="text-5xl opacity-30">🎁</span>
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3">
             {getStatusBadge(item)}
           </div>
         </div>
       )}
 
       {/* Content */}
-      <div className="p-4">
-        <h4 className="font-medium text-text line-clamp-2 leading-snug" title={item.title}>
+      <div className="p-3.5 sm:p-4">
+        <h4 className="font-medium text-text line-clamp-2 leading-snug text-[15px] sm:text-base" title={item.title}>
           {item.title}
         </h4>
 
-        <div className="flex items-center gap-3 mt-2">
+        <div className="flex items-center gap-2 sm:gap-3 mt-2">
           {item.price != null && (
-            <span className="text-base font-bold text-text">
+            <span className="text-[15px] sm:text-base font-bold text-text">
               {formatPrice(item.price)}
             </span>
           )}
@@ -85,7 +84,7 @@ export default function PublicItemCard({
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary-light transition-colors ml-auto"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary-light active:opacity-70 transition-colors ml-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <ExternalLink size={12} />
@@ -143,7 +142,7 @@ export default function PublicItemCard({
 
         {/* Action buttons */}
         {!isOwner && !item.is_reserved && !isFullyCollected && (
-          <div className="flex gap-2 mt-3">
+          <div className="flex flex-col sm:flex-row gap-2 mt-3">
             {!hasContributions && onReserve && (
               <Button size="md" onClick={onReserve} className="flex-1">
                 Зарезервировать
@@ -167,7 +166,7 @@ export default function PublicItemCard({
           <div className="mt-3">
             <button
               onClick={onCancelReservation}
-              className="text-xs text-error/60 hover:text-error transition-colors"
+              className="text-xs text-error/60 hover:text-error active:opacity-70 transition-colors py-1"
             >
               Отменить резервацию
             </button>
@@ -180,7 +179,7 @@ export default function PublicItemCard({
               <button
                 key={c.id}
                 onClick={() => onCancelContribution(c.id)}
-                className="text-xs text-error/60 hover:text-error transition-colors"
+                className="text-xs text-error/60 hover:text-error active:opacity-70 transition-colors py-1"
               >
                 Отменить вклад ({formatPrice(c.amount)})
               </button>

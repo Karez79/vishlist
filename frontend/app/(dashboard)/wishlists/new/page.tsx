@@ -103,7 +103,7 @@ export default function NewWishlistPage() {
                         key={e}
                         type="button"
                         onClick={() => setEmoji(e)}
-                        className={`w-14 h-14 rounded-2xl text-2xl flex items-center justify-center transition-all duration-200 ${
+                        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl text-xl sm:text-2xl flex items-center justify-center transition-all duration-200 ${
                           emoji === e
                             ? "bg-primary/10 ring-2 ring-primary scale-110 shadow-md shadow-primary/10"
                             : "bg-fill hover:bg-separator/80 hover:scale-105 active:scale-95"

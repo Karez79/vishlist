@@ -29,7 +29,7 @@ export default function WishlistCard({
 
   return (
     <div
-      className={`group bg-surface rounded-3xl border border-separator/60 cursor-pointer transition-all duration-200 hover:border-primary/20 hover:shadow-[0_8px_30px_rgba(0,122,255,0.08)] overflow-hidden ${wishlist.is_archived ? "opacity-50" : ""}`}
+      className={`group bg-surface rounded-3xl border border-separator/60 cursor-pointer transition-all duration-200 hover:border-primary/20 hover:shadow-[0_8px_30px_rgba(0,122,255,0.08)] active:scale-[0.97] overflow-hidden ${wishlist.is_archived ? "opacity-50" : ""}`}
       onClick={() => router.push(`/wishlists/${wishlist.id}`)}
     >
       {/* Top section with emoji background */}

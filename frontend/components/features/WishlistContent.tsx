@@ -195,9 +195,9 @@ export default function WishlistContent({
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-5 sm:py-8">
         {/* Navigation */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-5 sm:mb-8">
           <Link
             href="/"
             className="text-text-muted hover:text-text transition-colors text-sm flex items-center gap-1"
@@ -268,7 +268,7 @@ export default function WishlistContent({
                 />
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {items.map((item, index) => (
                   <PublicItemCard
                     key={item.id}

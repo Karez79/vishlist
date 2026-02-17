@@ -89,10 +89,10 @@ export default function DashboardPage() {
   return (
     <div className="pt-4">
       {/* Welcome banner */}
-      <div className="mb-8 p-6 rounded-3xl bg-gradient-to-br from-primary/5 via-primary/3 to-transparent border border-primary/10">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-text">
+      <div className="mb-6 sm:mb-8 p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-primary/5 via-primary/3 to-transparent border border-primary/10">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-text truncate">
               {getGreeting()}{firstName ? `, ${firstName}` : ""}
             </h1>
             <p className="text-text-muted text-sm mt-1">
@@ -101,9 +101,9 @@ export default function DashboardPage() {
                 : "Создайте первый вишлист и поделитесь с друзьями"}
             </p>
           </div>
-          <Button onClick={() => router.push("/wishlists/new")} size="lg">
-            <Plus size={18} className="mr-1.5" />
-            Создать
+          <Button onClick={() => router.push("/wishlists/new")} size="lg" className="flex-shrink-0">
+            <Plus size={18} className="sm:mr-1.5" />
+            <span className="hidden sm:inline">Создать</span>
           </Button>
         </div>
       </div>
