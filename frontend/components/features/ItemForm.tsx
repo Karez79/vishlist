@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link2, Image as ImageIcon, X } from "lucide-react";
@@ -10,12 +10,18 @@ import { Button, Input, Modal } from "@/components/ui";
 const schema = z.object({
   title: z.string().min(1, "Введите название").max(200),
   url: z.string().url("Некорректная ссылка").optional().or(z.literal("")),
-  price: z.coerce.number().int().positive("Цена должна быть положительной").optional().or(z.literal(0).transform(() => undefined)),
+  price: z.coerce.number().int().positive("Цена должна быть положительной").optional(),
   image_url: z.string().url("Некорректная ссылка").optional().or(z.literal("")),
   note: z.string().max(500).optional(),
 });
 
-type FormData = z.infer<typeof schema>;
+type FormData = {
+  title: string;
+  url?: string;
+  price?: number;
+  image_url?: string;
+  note?: string;
+};
 
 interface ItemFormProps {
   open: boolean;
@@ -48,7 +54,7 @@ export default function ItemForm({
     reset,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as Resolver<FormData>,
     defaultValues: defaultValues || {},
   });
 
