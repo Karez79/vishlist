@@ -1,14 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Gift, Share2 } from "lucide-react";
-import { Badge, EmptyState } from "@/components/ui";
-import ItemCard from "@/components/features/ItemCard";
+import { Gift } from "lucide-react";
+import { toast } from "sonner";
+import { EmptyState } from "@/components/ui";
+import PublicItemCard from "@/components/features/PublicItemCard";
 import ShareButton from "@/components/features/ShareButton";
 import Countdown from "@/components/features/Countdown";
+import ReserveModal from "@/components/features/ReserveModal";
+import ContributeModal from "@/components/features/ContributeModal";
 import { usePublicWishlist } from "@/hooks/usePublicWishlist";
-import type { PublicWishlist } from "@/types";
+import { useGuestToken } from "@/hooks/useGuestToken";
+import {
+  useReserveItem,
+  useCancelReservation,
+  useContributeItem,
+  useUpdateReservationEmail,
+  useUpdateContributionEmail,
+} from "@/hooks/useReservations";
+import { useAuthStore } from "@/lib/store";
+import type { PublicWishlist, WishlistItem } from "@/types";
 
 interface WishlistContentProps {
   initialData: PublicWishlist;
@@ -22,6 +34,67 @@ export default function WishlistContent({
   const { data } = usePublicWishlist(slug, initialData);
   const wishlist = data || initialData;
   const items = wishlist.items_data?.items || [];
+  const user = useAuthStore((s) => s.user);
+
+  const { setToken } = useGuestToken(slug);
+  const reserveItem = useReserveItem(slug);
+  const cancelReservation = useCancelReservation(slug);
+  const contributeItem = useContributeItem(slug);
+  const updateReservationEmail = useUpdateReservationEmail(slug);
+  const updateContributionEmail = useUpdateContributionEmail(slug);
+
+  const [reserveModalItem, setReserveModalItem] = useState<WishlistItem | null>(null);
+  const [contributeModalItem, setContributeModalItem] = useState<WishlistItem | null>(null);
+
+  const handleReserve = async (guestName: string) => {
+    if (!reserveModalItem) throw new Error("No item selected");
+    const result = await reserveItem.mutateAsync({
+      itemId: reserveModalItem.id,
+      guestName,
+    });
+    // Save guest token for future use
+    if (result.guest_token) {
+      setToken(result.guest_token);
+    }
+    return result;
+  };
+
+  const handleCancelReservation = (itemId: string) => {
+    cancelReservation.mutate(itemId, {
+      onSuccess: () => {
+        toast("Резервация отменена");
+      },
+    });
+  };
+
+  const handleContribute = async (guestName: string, amount: number) => {
+    if (!contributeModalItem) throw new Error("No item selected");
+    const result = await contributeItem.mutateAsync({
+      itemId: contributeModalItem.id,
+      guestName,
+      amount,
+    });
+    if (result.guest_token) {
+      setToken(result.guest_token);
+    }
+    return result;
+  };
+
+  const handleSaveReservationEmail = async (
+    reservationId: string,
+    email: string
+  ) => {
+    await updateReservationEmail.mutateAsync({ reservationId, email });
+    toast.success("Email сохранён");
+  };
+
+  const handleSaveContributionEmail = async (
+    contributionId: string,
+    email: string
+  ) => {
+    await updateContributionEmail.mutateAsync({ contributionId, email });
+    toast.success("Email сохранён");
+  };
 
   return (
     <div className="min-h-screen bg-bg">
@@ -66,13 +139,11 @@ export default function WishlistContent({
             </p>
           )}
 
-          {/* Owner info */}
           <div className="flex items-center justify-center gap-2 mt-4 text-sm text-text-muted">
             <Gift size={14} />
             <span>Вишлист от {wishlist.owner_name}</span>
           </div>
 
-          {/* Countdown */}
           {wishlist.event_date && (
             <Countdown eventDate={wishlist.event_date} />
           )}
@@ -93,15 +164,48 @@ export default function WishlistContent({
         ) : (
           <div className="space-y-3">
             {items.map((item) => (
-              <ItemCard
+              <PublicItemCard
                 key={item.id}
                 item={item}
-                isOwner={false}
+                isOwner={wishlist.is_owner}
+                onReserve={() => setReserveModalItem(item)}
+                onContribute={() => setContributeModalItem(item)}
+                onCancelReservation={() => handleCancelReservation(item.id)}
               />
             ))}
           </div>
         )}
       </div>
+
+      {/* Reserve modal */}
+      <ReserveModal
+        open={!!reserveModalItem}
+        onOpenChange={(open) => {
+          if (!open) setReserveModalItem(null);
+        }}
+        itemTitle={reserveModalItem?.title || ""}
+        onReserve={handleReserve}
+        onSaveEmail={handleSaveReservationEmail}
+        loading={reserveItem.isPending}
+        userName={user?.name}
+      />
+
+      {/* Contribute modal */}
+      {contributeModalItem && (
+        <ContributeModal
+          open={!!contributeModalItem}
+          onOpenChange={(open) => {
+            if (!open) setContributeModalItem(null);
+          }}
+          itemTitle={contributeModalItem.title}
+          price={contributeModalItem.price || 0}
+          totalContributed={contributeModalItem.total_contributed}
+          onContribute={handleContribute}
+          onSaveEmail={handleSaveContributionEmail}
+          loading={contributeItem.isPending}
+          userName={user?.name}
+        />
+      )}
     </div>
   );
 }
