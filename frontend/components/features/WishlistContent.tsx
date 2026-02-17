@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Gift, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
 import { EmptyState } from "@/components/ui";
 import PublicItemCard from "@/components/features/PublicItemCard";
 import ShareButton from "@/components/features/ShareButton";
@@ -182,7 +181,7 @@ export default function WishlistContent({
       {/* Owner banner */}
       {wishlist.is_owner && (
         <div className="bg-primary/5 border-b border-primary/10">
-          <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <span className="text-sm text-primary font-medium">
               Это ваш вишлист — друзья видят его так
             </span>
@@ -196,7 +195,7 @@ export default function WishlistContent({
         </div>
       )}
 
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Navigation */}
         <div className="flex items-center justify-between mb-8">
           <Link
@@ -206,84 +205,99 @@ export default function WishlistContent({
             <Gift size={16} className="text-primary" />
             <span className="font-medium">Vishlist</span>
           </Link>
-          <ShareButton slug={wishlist.slug} />
+          <div className="lg:hidden">
+            <ShareButton slug={wishlist.slug} />
+          </div>
         </div>
 
-        {/* Wishlist header card */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="text-center mb-10 bg-surface rounded-3xl border border-separator/60 p-8"
-        >
-          <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-primary/8 flex items-center justify-center text-4xl">
-            {wishlist.emoji}
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight mb-1">
-            {wishlist.title}
-          </h1>
-          {wishlist.description && (
-            <p className="text-text-muted mt-2 max-w-md mx-auto leading-relaxed">
-              {wishlist.description}
-            </p>
-          )}
+        {/* Sidebar + Main layout */}
+        <div className="lg:grid lg:grid-cols-[320px_1fr] lg:gap-10 lg:items-start">
+          {/* Sidebar: wishlist info */}
+          <div className="mb-8 lg:mb-0 lg:sticky lg:top-8">
+            <div className="text-center bg-surface rounded-3xl border border-separator/60 p-6">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-primary/8 flex items-center justify-center text-4xl">
+                {wishlist.emoji}
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight mb-1">
+                {wishlist.title}
+              </h1>
+              {wishlist.description && (
+                <p className="text-text-muted mt-2 text-sm leading-relaxed">
+                  {wishlist.description}
+                </p>
+              )}
 
-          <div className="flex items-center justify-center gap-2 mt-4 text-sm text-text-muted">
-            <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center">
-              {wishlist.owner_name.charAt(0).toUpperCase()}
-            </span>
-            <span>{wishlist.owner_name}</span>
-          </div>
+              <div className="flex items-center justify-center gap-2 mt-4 text-sm text-text-muted">
+                <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center">
+                  {wishlist.owner_name.charAt(0).toUpperCase()}
+                </span>
+                <span>{wishlist.owner_name}</span>
+              </div>
 
-          {wishlist.event_date && (
-            <Countdown eventDate={wishlist.event_date} />
-          )}
-        </motion.div>
+              {wishlist.event_date && (
+                <Countdown eventDate={wishlist.event_date} />
+              )}
 
-        {/* Items */}
-        <div className="mb-5">
-          <h2 className="font-semibold text-text">
-            Желания
-            <span className="text-text-muted font-normal ml-1.5">{totalItems}</span>
-          </h2>
-        </div>
+              <div className="hidden lg:block mt-5 pt-5 border-t border-separator/60">
+                <ShareButton slug={wishlist.slug} />
+              </div>
+            </div>
 
-        {items.length === 0 ? (
-          <div className="bg-surface rounded-3xl border border-separator/60 p-8">
-            <EmptyState
-              title="Владелец ещё не добавил желания"
-              description="Загляните позже!"
-            />
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            {items.map((item, index) => (
-              <PublicItemCard
-                key={item.id}
-                item={item}
-                isOwner={wishlist.is_owner}
-                index={index}
-                onReserve={() => setReserveModalItem(item)}
-                onContribute={() => setContributeModalItem(item)}
-                onCancelReservation={() => handleCancelReservation(item.id)}
-                onCancelContribution={handleCancelContribution}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Infinite scroll trigger */}
-        {hasNextPage && (
-          <div ref={loadMoreRef} className="flex justify-center py-6">
-            {isFetchingNextPage && (
-              <Loader2 size={24} className="animate-spin text-text-muted" />
+            {/* Guest recovery — below sidebar */}
+            {!wishlist.is_owner && (
+              <div className="hidden lg:block mt-4 text-center">
+                <GuestRecovery slug={slug} />
+              </div>
             )}
           </div>
-        )}
 
-        {/* Guest recovery */}
+          {/* Main: items */}
+          <div>
+            <div className="mb-5">
+              <h2 className="font-semibold text-text">
+                Желания
+                <span className="text-text-muted font-normal ml-1.5">{totalItems}</span>
+              </h2>
+            </div>
+
+            {items.length === 0 ? (
+              <div className="bg-surface rounded-3xl border border-separator/60 p-8">
+                <EmptyState
+                  title="Владелец ещё не добавил желания"
+                  description="Загляните позже!"
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                {items.map((item, index) => (
+                  <PublicItemCard
+                    key={item.id}
+                    item={item}
+                    isOwner={wishlist.is_owner}
+                    index={index}
+                    onReserve={() => setReserveModalItem(item)}
+                    onContribute={() => setContributeModalItem(item)}
+                    onCancelReservation={() => handleCancelReservation(item.id)}
+                    onCancelContribution={handleCancelContribution}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Infinite scroll trigger */}
+            {hasNextPage && (
+              <div ref={loadMoreRef} className="flex justify-center py-6">
+                {isFetchingNextPage && (
+                  <Loader2 size={24} className="animate-spin text-text-muted" />
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Guest recovery — mobile only */}
         {!wishlist.is_owner && (
-          <div className="mt-10 text-center">
+          <div className="lg:hidden mt-10 text-center">
             <GuestRecovery slug={slug} />
           </div>
         )}
