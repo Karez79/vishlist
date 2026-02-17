@@ -5,7 +5,10 @@ from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from pydantic import BaseModel, Field
+
 from app.api.deps import get_current_user_optional, get_db
+from app.core.security import create_guest_recovery_token, decode_guest_recovery_token
 from app.models.contribution import ItemContribution
 from app.models.item import WishlistItem
 from app.models.reservation import ItemReservation
@@ -317,3 +320,89 @@ async def update_contribution_email(
     contribution.guest_email = data.email.lower().strip()
     await db.flush()
     return {"detail": "Email сохранён"}
+
+
+# --- GUEST RECOVERY ---
+
+class GuestRecoverRequest(BaseModel):
+    email: str = Field(max_length=255)
+    wishlist_slug: str = Field(max_length=150)
+
+
+class GuestVerifyRequest(BaseModel):
+    token: str
+
+
+@router.post("/guest/recover")
+async def guest_recover(
+    data: GuestRecoverRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Find guest_token by email + slug and send recovery email."""
+    email = data.email.lower().strip()
+
+    # Find reservation or contribution with this email for this wishlist
+    result = await db.execute(
+        select(Wishlist).where(Wishlist.slug == data.wishlist_slug, Wishlist.is_deleted == False)
+    )
+    wishlist = result.scalar_one_or_none()
+    if not wishlist:
+        # Don't reveal if wishlist exists
+        return {"detail": "Если email найден, мы отправим ссылку для восстановления"}
+
+    # Check reservations
+    res_result = await db.execute(
+        select(ItemReservation)
+        .join(WishlistItem)
+        .where(
+            WishlistItem.wishlist_id == wishlist.id,
+            ItemReservation.guest_email == email,
+        )
+    )
+    reservation = res_result.scalars().first()
+
+    # Check contributions
+    contrib_result = await db.execute(
+        select(ItemContribution)
+        .join(WishlistItem)
+        .where(
+            WishlistItem.wishlist_id == wishlist.id,
+            ItemContribution.guest_email == email,
+        )
+    )
+    contribution = contrib_result.scalars().first()
+
+    guest_token = None
+    if reservation and reservation.guest_token:
+        guest_token = reservation.guest_token
+    elif contribution and contribution.guest_token:
+        guest_token = contribution.guest_token
+
+    if guest_token:
+        recovery_token = create_guest_recovery_token(guest_token, data.wishlist_slug)
+        # TODO: send email with recovery link when email service is ready
+        # For now, return token directly (dev mode)
+        return {
+            "detail": "Если email найден, мы отправим ссылку для восстановления",
+            "recovery_token": recovery_token,  # Remove in production
+        }
+
+    return {"detail": "Если email найден, мы отправим ссылку для восстановления"}
+
+
+@router.post("/guest/verify")
+async def guest_verify(
+    data: GuestVerifyRequest,
+):
+    """Verify recovery token and return guest_token."""
+    payload = decode_guest_recovery_token(data.token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Недействительная или истёкшая ссылка",
+        )
+
+    return {
+        "guest_token": payload["guest_token"],
+        "wishlist_slug": payload["wishlist_slug"],
+    }

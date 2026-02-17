@@ -10,6 +10,7 @@ import ShareButton from "@/components/features/ShareButton";
 import Countdown from "@/components/features/Countdown";
 import ReserveModal from "@/components/features/ReserveModal";
 import ContributeModal from "@/components/features/ContributeModal";
+import GuestRecovery from "@/components/features/GuestRecovery";
 import { usePublicWishlist } from "@/hooks/usePublicWishlist";
 import { useGuestToken } from "@/hooks/useGuestToken";
 import {
@@ -177,6 +178,13 @@ export default function WishlistContent({
                 onCancelReservation={() => handleCancelReservation(item.id)}
               />
             ))}
+          </div>
+        )}
+
+        {/* Guest recovery */}
+        {!wishlist.is_owner && (
+          <div className="mt-8 text-center">
+            <GuestRecovery slug={slug} />
           </div>
         )}
       </div>

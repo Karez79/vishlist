@@ -6,22 +6,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
 
 from app.api.endpoints import auth, health, items, parse_url, public, reservations, wishlists, ws
 from app.core.config import settings
-
-
-def get_real_ip(request: Request) -> str:
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return get_remote_address(request)
-
-
-limiter = Limiter(key_func=get_real_ip)
+from app.core.limiter import limiter
 
 logging.basicConfig(
     level=logging.INFO,

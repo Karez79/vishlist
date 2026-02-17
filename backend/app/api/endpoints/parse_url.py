@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
 from app.api.deps import get_current_user
+from app.core.limiter import limiter
 from app.models.user import User
 
 logger = logging.getLogger(__name__)
@@ -63,7 +64,9 @@ def extract_price(text: str | None) -> int | None:
 
 
 @router.post("", response_model=ParseUrlResponse)
+@limiter.limit("10/minute")
 async def parse_url(
+    request: Request,
     data: ParseUrlRequest,
     user: User = Depends(get_current_user),
 ):
