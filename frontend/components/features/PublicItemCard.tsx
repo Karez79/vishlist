@@ -45,13 +45,13 @@ export default function PublicItemCard({
     >
       <div className="flex gap-4">
         {/* Image */}
-        <div className="relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-fill">
+        <div className="relative w-20 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-fill">
           {item.image_url && !imgError ? (
             <Image
               src={item.image_url}
               alt={item.title}
               fill
-              className="object-cover"
+              className="object-contain"
               sizes="80px"
               onError={() => setImgError(true)}
             />
