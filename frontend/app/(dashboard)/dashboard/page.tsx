@@ -67,8 +67,8 @@ export default function DashboardPage() {
           <Skeleton className="h-7 w-40" />
           <Skeleton className="h-10 w-32 rounded-2xl" />
         </div>
-        <div className="grid gap-5 sm:grid-cols-2">
-          {[1, 2].map((i) => (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((i) => (
             <div key={i} className="rounded-3xl overflow-hidden border border-separator/60">
               <Skeleton className="h-28 rounded-none" />
               <div className="p-5 space-y-3">
@@ -118,7 +118,7 @@ export default function DashboardPage() {
         />
       ) : (
         <>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {wishlists.map((w, i) => (
               <motion.div
                 key={w.id}

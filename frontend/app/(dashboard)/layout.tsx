@@ -58,7 +58,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-separator">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link
             href="/dashboard"
             className="flex items-center gap-2 text-text font-bold tracking-tight text-xl"
@@ -83,7 +83,7 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8">{children}</main>
+      <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
     </div>
   );
 }
