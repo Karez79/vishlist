@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Calendar, Gift, Archive, MoreVertical, Trash2, ArchiveRestore } from "lucide-react";
+import { Calendar, Gift, Archive, Trash2, ArchiveRestore } from "lucide-react";
 import { Card, Badge } from "@/components/ui";
 import ShareButton from "./ShareButton";
 

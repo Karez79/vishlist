@@ -12,6 +12,7 @@ export function useRealtime(slug: string) {
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectAttempt = useRef(0);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const connectRef = useRef<() => void>(undefined);
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
@@ -28,7 +29,6 @@ export function useRealtime(slug: string) {
         const data = JSON.parse(event.data);
         if (data.type === "ping") return;
 
-        // Any real event → invalidate the public wishlist query
         queryClient.invalidateQueries({
           queryKey: ["public-wishlist", slug],
         });
@@ -39,13 +39,12 @@ export function useRealtime(slug: string) {
 
     ws.onclose = () => {
       wsRef.current = null;
-      // Exponential backoff reconnect
       const delay = Math.min(
         RECONNECT_BASE_DELAY * 2 ** reconnectAttempt.current,
         MAX_RECONNECT_DELAY
       );
       reconnectAttempt.current++;
-      reconnectTimer.current = setTimeout(connect, delay);
+      reconnectTimer.current = setTimeout(() => connectRef.current?.(), delay);
     };
 
     ws.onerror = () => {
@@ -54,9 +53,12 @@ export function useRealtime(slug: string) {
   }, [slug, queryClient]);
 
   useEffect(() => {
+    connectRef.current = connect;
+  });
+
+  useEffect(() => {
     connect();
 
-    // Reconnect on visibility change (tab becomes visible)
     const handleVisibility = () => {
       if (
         document.visibilityState === "visible" &&
@@ -66,7 +68,6 @@ export function useRealtime(slug: string) {
       }
     };
 
-    // Reconnect when online
     const handleOnline = () => {
       if (wsRef.current?.readyState !== WebSocket.OPEN) {
         connect();

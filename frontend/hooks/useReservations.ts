@@ -164,6 +164,60 @@ export function useContributeItem(slug: string) {
   });
 }
 
+export function useCancelContribution(slug: string) {
+  const queryClient = useQueryClient();
+  const queryKey = ["public-wishlist", slug];
+
+  return useMutation({
+    mutationFn: async (contributionId: string) => {
+      const headers = getGuestHeaders(slug);
+      const { data } = await apiClient.delete(
+        `/contributions/${contributionId}`,
+        { headers }
+      );
+      return data;
+    },
+    onMutate: async (contributionId) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<InfiniteWishlist>(queryKey);
+      if (previous) {
+        queryClient.setQueryData<InfiniteWishlist>(queryKey, {
+          ...previous,
+          pages: previous.pages.map((page) => ({
+            ...page,
+            items_data: {
+              ...page.items_data,
+              items: page.items_data.items.map((item) => {
+                const contribution = item.contributions?.find(
+                  (c) => c.id === contributionId
+                );
+                if (!contribution) return item;
+                return {
+                  ...item,
+                  total_contributed: item.total_contributed - contribution.amount,
+                  contributors_count: Math.max(0, item.contributors_count - 1),
+                  contributions: item.contributions?.filter(
+                    (c) => c.id !== contributionId
+                  ),
+                };
+              }),
+            },
+          })),
+        });
+      }
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKey, context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+}
+
 export function useUpdateReservationEmail(slug: string) {
   return useMutation({
     mutationFn: async ({

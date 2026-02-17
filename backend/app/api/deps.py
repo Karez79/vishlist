@@ -9,7 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import async_session
 from app.core.security import decode_access_token
+from app.models.item import WishlistItem
 from app.models.user import User
+from app.models.wishlist import Wishlist
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
@@ -61,3 +63,10 @@ async def get_current_user_optional(
         return None
     result = await db.execute(select(User).where(User.id == user_id))
     return result.scalar_one_or_none()
+
+
+async def get_wishlist_slug(item: WishlistItem, db: AsyncSession) -> str:
+    result = await db.execute(
+        select(Wishlist.slug).where(Wishlist.id == item.wishlist_id)
+    )
+    return result.scalar_one()

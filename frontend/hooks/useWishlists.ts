@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import apiClient from "@/lib/api-client";
+import { getErrorMessage } from "@/lib/utils";
 import type { PaginatedResponse, Wishlist } from "@/types";
 
 interface WishlistWithCount extends Wishlist {
@@ -51,8 +52,8 @@ export function useCreateWishlist() {
       queryClient.invalidateQueries({ queryKey: ["wishlists"] });
       toast.success("Вишлист создан!");
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || "Ошибка создания вишлиста");
+    onError: (error: Error) => {
+      toast.error(getErrorMessage(error, "Ошибка создания вишлиста"));
     },
   });
 }
@@ -80,8 +81,8 @@ export function useUpdateWishlist(id: string) {
       queryClient.invalidateQueries({ queryKey: ["wishlists"] });
       queryClient.invalidateQueries({ queryKey: ["wishlist", id] });
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || "Ошибка обновления");
+    onError: (error: Error) => {
+      toast.error(getErrorMessage(error, "Ошибка обновления"));
     },
   });
 }
