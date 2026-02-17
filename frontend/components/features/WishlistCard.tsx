@@ -82,37 +82,37 @@ export default function WishlistCard({
 
         {/* Action buttons */}
         <div
-          className="flex items-center gap-2 mt-4 pt-3 border-t border-separator/60"
+          className="grid grid-cols-3 gap-1 mt-4 pt-3 border-t border-separator/60"
           onClick={(e) => e.stopPropagation()}
         >
           <button
-            className="text-sm text-text-muted hover:text-text flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-fill transition-all active:scale-95"
+            className="text-xs text-text-muted hover:text-text flex items-center justify-center gap-1.5 py-2 rounded-xl hover:bg-fill transition-all active:scale-95"
             onClick={() => router.push(`/wishlists/${wishlist.id}`)}
           >
-            <Pencil size={16} /> Редактировать
+            <Pencil size={14} /> Редактировать
           </button>
           {onArchiveToggle && (
             <button
-              className="text-sm text-text-muted hover:text-text flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-fill transition-all active:scale-95"
+              className="text-xs text-text-muted hover:text-text flex items-center justify-center gap-1.5 py-2 rounded-xl hover:bg-fill transition-all active:scale-95"
               onClick={() => onArchiveToggle(wishlist.id, !wishlist.is_archived)}
             >
               {wishlist.is_archived ? (
                 <>
-                  <ArchiveRestore size={16} /> Разархивировать
+                  <ArchiveRestore size={14} /> Разархивировать
                 </>
               ) : (
                 <>
-                  <Archive size={16} /> В архив
+                  <Archive size={14} /> В архив
                 </>
               )}
             </button>
           )}
           {onDelete && (
             <button
-              className="text-sm text-error/60 hover:text-error hover:bg-error/5 flex items-center gap-2 px-3 py-2 rounded-xl ml-auto transition-all active:scale-95"
+              className="text-xs text-error/60 hover:text-error hover:bg-error/5 flex items-center justify-center gap-1.5 py-2 rounded-xl transition-all active:scale-95"
               onClick={() => onDelete(wishlist.id)}
             >
-              <Trash2 size={16} /> Удалить
+              <Trash2 size={14} /> Удалить
             </button>
           )}
         </div>
