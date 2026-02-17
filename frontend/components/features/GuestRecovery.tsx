@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
 import { toast } from "sonner";
 import { Button, Input, Modal } from "@/components/ui";
 import { useGuestToken } from "@/hooks/useGuestToken";
@@ -8,6 +9,16 @@ import apiClient from "@/lib/api-client";
 
 interface GuestRecoveryProps {
   slug: string;
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (axios.isAxiosError(error)) {
+    if (!error.response) return "Нет подключения к серверу";
+    if (error.response.status === 429) return "Слишком много попыток. Попробуйте позже.";
+    const detail = error.response.data?.detail;
+    if (typeof detail === "string") return detail;
+  }
+  return fallback;
 }
 
 export default function GuestRecovery({ slug }: GuestRecoveryProps) {
@@ -33,8 +44,9 @@ export default function GuestRecovery({ slug }: GuestRecoveryProps) {
         toast.success("Проверьте почту — мы отправили ссылку");
         setOpen(false);
       }
-    } catch {
-      toast.error("Не удалось найти резервацию");
+    } catch (error) {
+      console.error("Guest recovery failed:", error);
+      toast.error(getErrorMessage(error, "Не удалось восстановить доступ"));
     } finally {
       setLoading(false);
     }
@@ -50,8 +62,9 @@ export default function GuestRecovery({ slug }: GuestRecoveryProps) {
       toast.success("Доступ восстановлен!");
       setOpen(false);
       window.location.reload();
-    } catch {
-      toast.error("Ссылка недействительна или истекла");
+    } catch (error) {
+      console.error("Guest verify failed:", error);
+      toast.error(getErrorMessage(error, "Ссылка недействительна или истекла"));
     } finally {
       setLoading(false);
     }

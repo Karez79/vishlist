@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
@@ -5,6 +6,8 @@ import bcrypt
 import jwt
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 def hash_password(password: str) -> str:
@@ -58,7 +61,15 @@ def decode_guest_recovery_token(token: str) -> dict | None:
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
         if payload.get("type") != "guest_recovery":
+            logger.warning("Recovery token type mismatch: %s", payload.get("type"))
             return None
         return payload
-    except jwt.PyJWTError:
+    except jwt.ExpiredSignatureError:
+        logger.info("Guest recovery token expired")
+        return None
+    except jwt.InvalidSignatureError:
+        logger.warning("Guest recovery token has invalid signature — possible tampering")
+        return None
+    except jwt.PyJWTError as e:
+        logger.warning("Guest recovery token decode failed: %s", e)
         return None

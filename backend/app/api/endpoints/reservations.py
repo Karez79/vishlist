@@ -1,13 +1,14 @@
+import logging
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from pydantic import BaseModel, Field
-
 from app.api.deps import get_current_user_optional, get_db
+from app.core.config import settings
+from app.core.limiter import limiter
 from app.core.security import create_guest_recovery_token, decode_guest_recovery_token
 from app.models.contribution import ItemContribution
 from app.models.item import WishlistItem
@@ -18,10 +19,15 @@ from app.core.ws_manager import manager
 from app.schemas.reservation import (
     ContributeRequest,
     ContributeResponse,
+    GuestRecoverRequest,
+    GuestVerifyRequest,
     ReserveRequest,
     ReserveResponse,
     UpdateGuestEmailRequest,
 )
+from app.utils.email import send_recovery_email
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["reservations"])
 
@@ -324,17 +330,13 @@ async def update_contribution_email(
 
 # --- GUEST RECOVERY ---
 
-class GuestRecoverRequest(BaseModel):
-    email: str = Field(max_length=255)
-    wishlist_slug: str = Field(max_length=150)
-
-
-class GuestVerifyRequest(BaseModel):
-    token: str
+RECOVERY_RESPONSE = {"detail": "Если email найден, мы отправим ссылку для восстановления"}
 
 
 @router.post("/guest/recover")
+@limiter.limit("3/minute")
 async def guest_recover(
+    request: Request,
     data: GuestRecoverRequest,
     db: AsyncSession = Depends(get_db),
 ):
@@ -347,8 +349,8 @@ async def guest_recover(
     )
     wishlist = result.scalar_one_or_none()
     if not wishlist:
-        # Don't reveal if wishlist exists
-        return {"detail": "Если email найден, мы отправим ссылку для восстановления"}
+        logger.info("Guest recovery: wishlist slug=%s not found", data.wishlist_slug)
+        return RECOVERY_RESPONSE
 
     # Check reservations
     res_result = await db.execute(
@@ -380,18 +382,26 @@ async def guest_recover(
 
     if guest_token:
         recovery_token = create_guest_recovery_token(guest_token, data.wishlist_slug)
-        # TODO: send email with recovery link when email service is ready
-        # For now, return token directly (dev mode)
-        return {
-            "detail": "Если email найден, мы отправим ссылку для восстановления",
-            "recovery_token": recovery_token,  # Remove in production
-        }
+        logger.info("Guest recovery: token generated for slug=%s", data.wishlist_slug)
 
-    return {"detail": "Если email найден, мы отправим ссылку для восстановления"}
+        if settings.DEBUG:
+            # Dev mode: return token directly for testing
+            logger.warning("DEV MODE: returning recovery token in response")
+            return {**RECOVERY_RESPONSE, "recovery_token": recovery_token}
+
+        # Production: send email with recovery link
+        recovery_url = f"{settings.FRONTEND_URL}/w/{data.wishlist_slug}?recovery={recovery_token}"
+        await send_recovery_email(email, wishlist.title, recovery_url)
+    else:
+        logger.info("Guest recovery: no matching email for slug=%s", data.wishlist_slug)
+
+    return RECOVERY_RESPONSE
 
 
 @router.post("/guest/verify")
+@limiter.limit("5/minute")
 async def guest_verify(
+    request: Request,
     data: GuestVerifyRequest,
 ):
     """Verify recovery token and return guest_token."""

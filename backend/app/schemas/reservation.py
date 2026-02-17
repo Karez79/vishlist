@@ -31,3 +31,12 @@ class ContributeResponse(BaseModel):
     guest_token: str | None
     is_mine: bool
     created_at: str
+
+
+class GuestRecoverRequest(BaseModel):
+    email: str = Field(max_length=255)
+    wishlist_slug: str = Field(max_length=150)
+
+
+class GuestVerifyRequest(BaseModel):
+    token: str = Field(max_length=2000)

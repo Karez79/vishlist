@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 days
 
+    DEBUG: bool = False
+
     FRONTEND_URL: str = "http://localhost:3000"
 
     GOOGLE_CLIENT_ID: str = ""
