@@ -65,11 +65,18 @@ export default function DashboardPage() {
         <Skeleton className="h-24 w-full mb-8 rounded-3xl" />
         <div className="flex items-center justify-between mb-6">
           <Skeleton className="h-7 w-40" />
-          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-10 w-32 rounded-2xl" />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2">
           {[1, 2].map((i) => (
-            <Skeleton key={i} className="h-40 rounded-3xl" />
+            <div key={i} className="rounded-3xl overflow-hidden border border-separator/60">
+              <Skeleton className="h-28 rounded-none" />
+              <div className="p-5 space-y-3">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-8 w-full mt-2" />
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -111,7 +118,7 @@ export default function DashboardPage() {
         />
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             {wishlists.map((w, i) => (
               <motion.div
                 key={w.id}
