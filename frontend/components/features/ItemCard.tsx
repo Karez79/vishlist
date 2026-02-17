@@ -56,12 +56,12 @@ export default function ItemCard({
 
       {/* Content */}
       <div className="flex-1 min-w-0 py-0.5">
-        <div className="flex items-start justify-between gap-2">
-          <h4 className="font-medium text-text line-clamp-2 leading-snug" title={item.title}>
-            {item.title}
-          </h4>
+        <div className="flex items-start gap-2">
           {getStatusBadge(item)}
         </div>
+        <h4 className="font-medium text-text leading-snug mt-1" title={item.title}>
+          {item.title}
+        </h4>
 
         <div className="flex items-center gap-3 mt-2">
           {item.price != null && (
@@ -74,11 +74,11 @@ export default function ItemCard({
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary-light transition-colors"
+              className="inline-flex items-center gap-1.5 text-[13px] font-medium text-primary hover:text-primary-light transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
-              <ExternalLink size={12} />
-              Ссылка
+              <ExternalLink size={14} />
+              Ссылка на товар
             </a>
           )}
         </div>
@@ -89,7 +89,7 @@ export default function ItemCard({
 
         {/* Owner actions */}
         {isOwner && (
-          <div className="flex items-center gap-1 mt-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 mt-2.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
             {onEdit && (
               <button
                 onClick={onEdit}

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Pencil } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button, ProgressBar } from "@/components/ui";
 import { formatPrice } from "@/lib/utils";
@@ -87,11 +87,11 @@ export default function PublicItemCard({
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary-light active:opacity-70 transition-colors ml-auto"
+              className="inline-flex items-center gap-1.5 text-[15px] font-medium text-primary hover:text-primary-light active:opacity-70 transition-colors ml-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <ExternalLink size={12} />
-              Ссылка
+              <ExternalLink size={16} />
+              Ссылка на товар
             </a>
           )}
         </div>
@@ -188,6 +188,17 @@ export default function PublicItemCard({
               </button>
             ))}
           </div>
+        )}
+
+        {/* Owner: edit button */}
+        {isOwner && onCardTap && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onCardTap(); }}
+            className="flex items-center justify-center gap-2 mt-3 w-full py-2.5 rounded-xl bg-primary/10 text-[15px] font-medium text-primary hover:bg-primary/15 active:opacity-70 transition-colors"
+          >
+            <Pencil size={16} />
+            Редактировать
+          </button>
         )}
       </div>
     </motion.div>
