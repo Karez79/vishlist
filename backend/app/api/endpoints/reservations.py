@@ -11,6 +11,7 @@ from app.models.item import WishlistItem
 from app.models.reservation import ItemReservation
 from app.models.user import User
 from app.models.wishlist import Wishlist
+from app.core.ws_manager import manager
 from app.schemas.reservation import (
     ContributeRequest,
     ContributeResponse,
@@ -20,6 +21,13 @@ from app.schemas.reservation import (
 )
 
 router = APIRouter(tags=["reservations"])
+
+
+async def get_wishlist_slug(item: WishlistItem, db: AsyncSession) -> str:
+    result = await db.execute(
+        select(Wishlist.slug).where(Wishlist.id == item.wishlist_id)
+    )
+    return result.scalar_one()
 
 
 async def get_item_for_update(item_id: uuid.UUID, db: AsyncSession) -> WishlistItem:
@@ -95,6 +103,9 @@ async def reserve_item(
     db.add(reservation)
     await db.flush()
 
+    slug = await get_wishlist_slug(item, db)
+    await manager.broadcast(slug, {"type": "reservation_created", "item_id": str(item.id)})
+
     return ReserveResponse(
         id=str(reservation.id),
         item_id=str(reservation.item_id),
@@ -132,8 +143,18 @@ async def cancel_reservation(
             detail="Вы не можете отменить эту резервацию",
         )
 
+    # Get item for slug broadcast
+    item_result = await db.execute(
+        select(WishlistItem).where(WishlistItem.id == reservation.item_id)
+    )
+    item = item_result.scalar_one()
+
     await db.delete(reservation)
     await db.flush()
+
+    slug = await get_wishlist_slug(item, db)
+    await manager.broadcast(slug, {"type": "reservation_cancelled", "item_id": str(item.id)})
+
     return {"detail": "Резервация отменена"}
 
 
@@ -221,6 +242,9 @@ async def contribute_to_item(
     db.add(contribution)
     await db.flush()
 
+    slug = await get_wishlist_slug(item, db)
+    await manager.broadcast(slug, {"type": "contribution_created", "item_id": str(item.id)})
+
     return ContributeResponse(
         id=str(contribution.id),
         item_id=str(contribution.item_id),
@@ -258,8 +282,18 @@ async def delete_contribution(
             detail="Вы не можете удалить этот вклад",
         )
 
+    # Get item for slug broadcast
+    item_result = await db.execute(
+        select(WishlistItem).where(WishlistItem.id == contribution.item_id)
+    )
+    item = item_result.scalar_one()
+
     await db.delete(contribution)
     await db.flush()
+
+    slug = await get_wishlist_slug(item, db)
+    await manager.broadcast(slug, {"type": "contribution_deleted", "item_id": str(item.id)})
+
     return {"detail": "Вклад удалён"}
 
 

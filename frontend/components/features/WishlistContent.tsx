@@ -19,6 +19,7 @@ import {
   useUpdateReservationEmail,
   useUpdateContributionEmail,
 } from "@/hooks/useReservations";
+import { useRealtime } from "@/hooks/useRealtime";
 import { useAuthStore } from "@/lib/store";
 import type { PublicWishlist, WishlistItem } from "@/types";
 
@@ -35,6 +36,9 @@ export default function WishlistContent({
   const wishlist = data || initialData;
   const items = wishlist.items_data?.items || [];
   const user = useAuthStore((s) => s.user);
+
+  // Realtime updates via WebSocket
+  useRealtime(slug);
 
   const { setToken } = useGuestToken(slug);
   const reserveItem = useReserveItem(slug);

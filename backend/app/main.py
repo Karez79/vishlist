@@ -10,7 +10,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from app.api.endpoints import auth, health, items, public, reservations, wishlists
+from app.api.endpoints import auth, health, items, public, reservations, wishlists, ws
 from app.core.config import settings
 
 
@@ -82,5 +82,6 @@ app.include_router(wishlists.router, prefix="/api", tags=["wishlists"])
 app.include_router(items.router, prefix="/api", tags=["items"])
 app.include_router(public.router, prefix="/api", tags=["public"])
 app.include_router(reservations.router, prefix="/api", tags=["reservations"])
+app.include_router(ws.router, prefix="/api")
 
 logger.info("Vishlist API started")
