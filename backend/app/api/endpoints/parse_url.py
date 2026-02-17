@@ -1,5 +1,6 @@
 import logging
 import re
+import socket
 from ipaddress import ip_address
 from urllib.parse import urlparse
 
@@ -32,7 +33,8 @@ class ParseUrlResponse(BaseModel):
     price: int | None = None
 
 
-def is_private_ip(hostname: str) -> bool:
+def _is_private_ip(hostname: str) -> bool:
+    """Check if an IP address string is private/loopback/reserved."""
     try:
         ip = ip_address(hostname)
         return ip.is_private or ip.is_loopback or ip.is_reserved
@@ -40,12 +42,28 @@ def is_private_ip(hostname: str) -> bool:
         return False
 
 
-def _validate_redirect(response: httpx.Response) -> None:
+def is_blocked_host(hostname: str) -> bool:
+    """Check hostname against blocklist, including DNS resolution."""
+    if hostname in BLOCKED_HOSTS:
+        return True
+    if _is_private_ip(hostname):
+        return True
+    # Resolve hostname and check all resolved IPs
+    try:
+        for _, _, _, _, sockaddr in socket.getaddrinfo(hostname, None):
+            if _is_private_ip(sockaddr[0]):
+                return True
+    except socket.gaierror:
+        pass
+    return False
+
+
+async def _validate_redirect(response: httpx.Response) -> None:
     """Block redirects to private/internal IPs (SSRF protection)."""
     if response.is_redirect and response.next_request:
         target = response.next_request.url
         hostname = target.host or ""
-        if hostname in BLOCKED_HOSTS or is_private_ip(hostname):
+        if is_blocked_host(hostname):
             raise httpx.TooManyRedirects(
                 "Redirect to private IP blocked",
                 request=response.request,
@@ -96,7 +114,7 @@ async def parse_url(
         )
 
     hostname = parsed.hostname or ""
-    if hostname in BLOCKED_HOSTS or is_private_ip(hostname):
+    if is_blocked_host(hostname):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Недопустимый адрес",
