@@ -100,10 +100,10 @@ export default function ImageUpload({
 
   if (value) {
     return (
-      <div className={cn("relative", compact ? "w-[120px]" : "w-full", className)}>
+      <div className={cn("relative", compact ? "w-[160px]" : "w-full", className)}>
         <div className={cn(
           "relative rounded-2xl overflow-hidden border border-separator bg-fill",
-          compact ? "w-[120px] h-[120px]" : "w-full aspect-[4/3]"
+          compact ? "w-[160px] h-[160px]" : "w-full aspect-[4/3]"
         )}>
           {imgError ? (
             <div className="flex flex-col items-center justify-center w-full h-full gap-1 text-text-muted">
@@ -116,7 +116,7 @@ export default function ImageUpload({
               alt="Preview"
               fill
               className="object-cover"
-              sizes={compact ? "120px" : "(max-width: 768px) 100vw, 400px"}
+              sizes={compact ? "160px" : "(max-width: 768px) 100vw, 400px"}
               onError={() => setImgError(true)}
             />
           )}
@@ -137,7 +137,7 @@ export default function ImageUpload({
   }
 
   return (
-    <div className={cn(compact ? "w-[120px]" : "w-full", className)}>
+    <div className={cn(compact ? "w-[160px]" : "w-full", className)}>
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -148,7 +148,7 @@ export default function ImageUpload({
         onClick={() => inputRef.current?.click()}
         className={cn(
           "flex flex-col items-center justify-center rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200",
-          compact ? "w-[120px] h-[120px] gap-1" : "w-full h-28 gap-2",
+          compact ? "w-[160px] h-[160px] gap-1" : "w-full h-28 gap-2",
           dragOver
             ? "border-primary bg-primary/5"
             : "border-separator hover:border-primary/50 hover:bg-fill"
