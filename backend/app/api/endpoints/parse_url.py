@@ -124,6 +124,43 @@ def _wb_cdn_base(nm_id: int) -> tuple[str, int, int]:
     return base, vol, part
 
 
+async def _wb_search_price(nm_id: int) -> int | None:
+    """Fallback: get price from WB search API when CDN price-history is unavailable."""
+    try:
+        async with httpx.AsyncClient(timeout=5) as client:
+            resp = await client.get(
+                "https://search.wb.ru/exactmatch/ru/common/v9/search",
+                params={
+                    "appType": 1,
+                    "curr": "rub",
+                    "dest": -1257786,
+                    "query": str(nm_id),
+                    "resultset": "catalog",
+                },
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/131.0.0.0 Safari/537.36",
+                    "Origin": "https://www.wildberries.ru",
+                    "Referer": "https://www.wildberries.ru/",
+                },
+            )
+            if resp.status_code != 200:
+                return None
+            data = resp.json()
+            products = data.get("data", {}).get("products", [])
+            for p in products:
+                if p.get("id") == nm_id:
+                    # salePriceU is in hundredths of kopecks (e.g. 332300 = 3323 RUB)
+                    sale = p.get("salePriceU")
+                    if sale and isinstance(sale, int):
+                        return sale // 100
+            return None
+    except Exception:
+        logger.debug("WB search API fallback failed for %s", nm_id)
+        return None
+
+
 async def _parse_wildberries(url: str) -> ParseUrlResponse | None:
     """Extract product info from Wildberries URL using public CDN endpoints."""
     match = re.search(r"/catalog/(\d+)", url)
@@ -166,6 +203,10 @@ async def _parse_wildberries(url: str) -> ParseUrlResponse | None:
     except Exception:
         logger.debug("WB CDN fetch failed for %s", nm_id)
 
+    # Fallback: try search API if CDN didn't return price
+    if price is None:
+        price = await _wb_search_price(nm_id)
+
     return ParseUrlResponse(
         title=title,
         image_url=image_url,
@@ -174,26 +215,68 @@ async def _parse_wildberries(url: str) -> ParseUrlResponse | None:
     )
 
 
-def _parse_ozon(url: str) -> ParseUrlResponse | None:
-    """Extract what we can from Ozon URL."""
-    # Ozon URLs: /product/product-name-slug-123456789/
+async def _resolve_ozon_short_link(url: str) -> str | None:
+    """Resolve Ozon short links (ozon.ru/t/...) to full product URLs."""
+    try:
+        async with httpx.AsyncClient(
+            timeout=5,
+            follow_redirects=False,
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/131.0.0.0 Safari/537.36",
+            },
+        ) as client:
+            resp = await client.get(url)
+            if resp.status_code in (301, 302, 307, 308):
+                location = resp.headers.get("location", "")
+                if "/product/" in location:
+                    return location
+    except Exception:
+        logger.debug("Ozon short link resolve failed for %s", url)
+    return None
+
+
+def _extract_ozon_title(url: str) -> str | None:
+    """Extract readable title from Ozon product URL slug."""
     match = re.search(r"/product/(.+?)(?:/|\?|$)", url)
     if not match:
         return None
 
     slug = match.group(1)
-    # Extract readable title from slug (replace hyphens, remove trailing ID)
+    # Remove trailing numeric ID: "tapochki-domashnie-2748295341" → "tapochki-domashnie"
     title_parts = slug.rsplit("-", 1)
     if len(title_parts) == 2 and title_parts[1].isdigit():
         title = title_parts[0].replace("-", " ").strip().capitalize()
     else:
         title = slug.replace("-", " ").strip().capitalize()
 
+    if not title or len(title) < 3:
+        return None
     if len(title) > 200:
         title = title[:200]
+    return title
+
+
+async def _parse_ozon(url: str) -> ParseUrlResponse | None:
+    """Extract what we can from Ozon URL (HTML fetch blocked by anti-bot)."""
+    parsed = urlparse(url)
+    path = parsed.path or ""
+
+    # Handle short links: ozon.ru/t/XXXXX
+    if re.match(r"/t/\w+", path):
+        resolved = await _resolve_ozon_short_link(url)
+        if resolved:
+            url = resolved
+        else:
+            return None
+
+    title = _extract_ozon_title(url)
+    if not title:
+        return None
 
     return ParseUrlResponse(
-        title=title if title else None,
+        title=title,
         image_url=None,
         description=None,
         price=None,
@@ -208,7 +291,7 @@ async def _try_marketplace_parse(url: str) -> ParseUrlResponse | None:
         return await _parse_wildberries(url)
 
     if "ozon.ru" in hostname:
-        return _parse_ozon(url)
+        return await _parse_ozon(url)
 
     return None
 
