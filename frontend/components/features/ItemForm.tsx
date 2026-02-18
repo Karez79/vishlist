@@ -130,7 +130,8 @@ export default function ItemForm({
 
         {/* Image URL under product URL */}
         <Input
-          placeholder="Ссылка на картинку"
+          label="Ссылка на картинку"
+          placeholder="https://..."
           error={errors.image_url?.message}
           {...register("image_url")}
         />
