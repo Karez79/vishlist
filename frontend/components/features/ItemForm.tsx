@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, ChevronDown, ChevronUp, ImageIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button, Input, Textarea, Modal } from "@/components/ui";
 import ImageUpload from "@/components/ui/ImageUpload";
 import { useParseUrl } from "@/hooks/useParseUrl";
@@ -48,7 +48,6 @@ export default function ItemForm({
   loading,
   title = "Добавить желание",
 }: ItemFormProps) {
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const parseUrl = useParseUrl();
   const debounceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastParsedUrl = useRef<string>("");
@@ -66,7 +65,6 @@ export default function ItemForm({
     defaultValues: defaultValues || {},
   });
 
-  // Auto-fill from URL — event-driven, no useEffect dependency loops
   const triggerAutofill = (url: string) => {
     if (!url || getValues("title") || lastParsedUrl.current === url) return;
     try { new URL(url); } catch { return; }
@@ -76,16 +74,9 @@ export default function ItemForm({
       lastParsedUrl.current = url;
       parseUrl.mutate(url, {
         onSuccess: (data) => {
-          if (data.title && !getValues("title")) {
-            setValue("title", data.title);
-          }
-          if (data.image_url) {
-            setValue("image_url", data.image_url);
-            setShowAdvanced(true);
-          }
-          if (data.price) {
-            setValue("price", data.price);
-          }
+          if (data.title && !getValues("title")) setValue("title", data.title);
+          if (data.image_url) setValue("image_url", data.image_url);
+          if (data.price) setValue("price", data.price);
         },
       });
     }, 500);
@@ -109,7 +100,6 @@ export default function ItemForm({
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       reset(defaultValues || {});
-      setShowAdvanced(false);
       lastParsedUrl.current = "";
       clearTimeout(debounceTimer.current);
     }
@@ -117,7 +107,7 @@ export default function ItemForm({
   };
 
   return (
-    <Modal open={open} onOpenChange={handleOpenChange} title={title} className="sm:max-w-lg">
+    <Modal open={open} onOpenChange={handleOpenChange} title={title} className="sm:max-w-[600px]">
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-3">
         {/* URL */}
         <div className="relative">
@@ -138,57 +128,38 @@ export default function ItemForm({
           )}
         </div>
 
-        {/* Name + Price side by side on desktop */}
-        <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px] gap-3">
-          <Input
-            label="Название"
-            placeholder="Наушники Sony WH-1000XM5"
-            error={errors.title?.message}
-            {...register("title")}
-          />
-          <Input
-            label="Цена (₽)"
-            type="number"
-            min={1}
-            step={1}
-            placeholder="25 000"
-            error={errors.price?.message}
-            {...register("price")}
-          />
-        </div>
+        {/* Desktop: image left, fields right. Mobile: stacked */}
+        <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-4">
+          {/* Image */}
+          <div className="space-y-2">
+            <ImageUpload
+              value={watch("image_url") || undefined}
+              onChange={(url) => setValue("image_url", url || "")}
+            />
+            <Input
+              placeholder="Или ссылка на картинку"
+              error={errors.image_url?.message}
+              {...register("image_url")}
+            />
+          </div>
 
-        {/* Advanced toggle */}
-        <button
-          type="button"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center gap-1.5 text-sm text-primary hover:text-primary-light transition-colors font-medium"
-        >
-          {showAdvanced ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          {showAdvanced ? "Скрыть дополнительно" : "Картинка и заметка"}
-        </button>
-
-        {showAdvanced && (
-          <div className="space-y-3 pt-1">
-            {/* Image: preview + URL side by side on desktop */}
-            <div>
-              <label className="flex items-center gap-1.5 text-sm font-medium text-text mb-1.5">
-                <ImageIcon size={14} className="text-text-muted" />
-                Картинка
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-3 items-center">
-                <ImageUpload
-                  value={watch("image_url") || undefined}
-                  onChange={(url) => setValue("image_url", url || "")}
-                  compact
-                />
-                <Input
-                  placeholder="https://...image.jpg"
-                  error={errors.image_url?.message}
-                  {...register("image_url")}
-                />
-              </div>
-            </div>
-
+          {/* Fields */}
+          <div className="space-y-3">
+            <Input
+              label="Название"
+              placeholder="Наушники Sony WH-1000XM5"
+              error={errors.title?.message}
+              {...register("title")}
+            />
+            <Input
+              label="Цена (₽)"
+              type="number"
+              min={1}
+              step={1}
+              placeholder="25 000"
+              error={errors.price?.message}
+              {...register("price")}
+            />
             <Textarea
               label="Заметка для друзей"
               rows={2}
@@ -196,7 +167,7 @@ export default function ItemForm({
               {...register("note")}
             />
           </div>
-        )}
+        </div>
 
         <Button type="submit" className="w-full" size="lg" loading={loading}>
           {defaultValues?.title ? "Сохранить" : "Добавить"}
