@@ -175,14 +175,13 @@ export default function ItemForm({
                 <ImageIcon size={14} className="text-text-muted" />
                 Картинка
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-3 items-start">
+              <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-3 items-center">
                 <ImageUpload
                   value={watch("image_url") || undefined}
                   onChange={(url) => setValue("image_url", url || "")}
                   compact
                 />
                 <Input
-                  label="Или ссылка на картинку"
                   placeholder="https://...image.jpg"
                   error={errors.image_url?.message}
                   {...register("image_url")}
