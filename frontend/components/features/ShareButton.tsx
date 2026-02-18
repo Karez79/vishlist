@@ -26,9 +26,8 @@ export default function ShareButton({
     if (navigator.share) {
       try {
         await navigator.share({
-          text: title
-            ? `Смотри мой вишлист «${title}»\n${url}`
-            : url,
+          title: title ? `Смотри мой вишлист «${title}»` : "Вишлист",
+          url,
         });
       } catch {
         // User cancelled share

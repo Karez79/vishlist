@@ -117,8 +117,9 @@ export default function ItemForm({
   };
 
   return (
-    <Modal open={open} onOpenChange={handleOpenChange} title={title}>
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+    <Modal open={open} onOpenChange={handleOpenChange} title={title} className="sm:max-w-lg">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-3">
+        {/* URL */}
         <div className="relative">
           <Input
             label="Ссылка на товар"
@@ -137,22 +138,24 @@ export default function ItemForm({
           )}
         </div>
 
-        <Input
-          label="Название"
-          placeholder="Наушники Sony WH-1000XM5"
-          error={errors.title?.message}
-          {...register("title")}
-        />
-
-        <Input
-          label="Цена (₽)"
-          type="number"
-          min={1}
-          step={1}
-          placeholder="25 000"
-          error={errors.price?.message}
-          {...register("price")}
-        />
+        {/* Name + Price side by side on desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px] gap-3">
+          <Input
+            label="Название"
+            placeholder="Наушники Sony WH-1000XM5"
+            error={errors.title?.message}
+            {...register("title")}
+          />
+          <Input
+            label="Цена (₽)"
+            type="number"
+            min={1}
+            step={1}
+            placeholder="25 000"
+            error={errors.price?.message}
+            {...register("price")}
+          />
+        </div>
 
         {/* Advanced toggle */}
         <button
@@ -165,17 +168,19 @@ export default function ItemForm({
         </button>
 
         {showAdvanced && (
-          <div className="space-y-4 pt-1">
+          <div className="space-y-3 pt-1">
+            {/* Image: preview + URL side by side on desktop */}
             <div>
               <label className="flex items-center gap-1.5 text-sm font-medium text-text mb-1.5">
                 <ImageIcon size={14} className="text-text-muted" />
                 Картинка
               </label>
-              <ImageUpload
-                value={watch("image_url") || undefined}
-                onChange={(url) => setValue("image_url", url || "")}
-              />
-              <div className="mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-3 items-start">
+                <ImageUpload
+                  value={watch("image_url") || undefined}
+                  onChange={(url) => setValue("image_url", url || "")}
+                  compact
+                />
                 <Input
                   label="Или ссылка на картинку"
                   placeholder="https://...image.jpg"

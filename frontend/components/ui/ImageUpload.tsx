@@ -13,12 +13,14 @@ interface ImageUploadProps {
   value?: string;
   onChange: (url: string | undefined) => void;
   className?: string;
+  compact?: boolean;
 }
 
 export default function ImageUpload({
   value,
   onChange,
   className,
+  compact,
 }: ImageUploadProps) {
   const token = useAuthStore((s) => s.token);
   const [uploading, setUploading] = useState(false);
@@ -98,30 +100,36 @@ export default function ImageUpload({
 
   if (value) {
     return (
-      <div className={cn("relative w-full", className)}>
-        <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-separator bg-fill">
+      <div className={cn("relative", compact ? "w-[120px]" : "w-full", className)}>
+        <div className={cn(
+          "relative rounded-2xl overflow-hidden border border-separator bg-fill",
+          compact ? "w-[120px] h-[120px]" : "w-full aspect-[4/3]"
+        )}>
           {imgError ? (
-            <div className="flex flex-col items-center justify-center w-full h-full gap-1.5 text-text-muted">
-              <ImageOff size={28} />
-              <span className="text-xs">Не удалось загрузить</span>
+            <div className="flex flex-col items-center justify-center w-full h-full gap-1 text-text-muted">
+              <ImageOff size={compact ? 20 : 28} />
+              {!compact && <span className="text-xs">Не удалось загрузить</span>}
             </div>
           ) : (
             <Image
               src={value}
               alt="Preview"
               fill
-              className="object-contain"
-              sizes="(max-width: 768px) 100vw, 400px"
+              className="object-cover"
+              sizes={compact ? "120px" : "(max-width: 768px) 100vw, 400px"}
               onError={() => setImgError(true)}
             />
           )}
           <button
             type="button"
             onClick={() => onChange(undefined)}
-            className="absolute top-2 right-2 p-1 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
+            className={cn(
+              "absolute p-1 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors",
+              compact ? "top-1 right-1" : "top-2 right-2"
+            )}
             aria-label="Удалить изображение"
           >
-            <X size={14} />
+            <X size={compact ? 12 : 14} />
           </button>
         </div>
       </div>
@@ -129,7 +137,7 @@ export default function ImageUpload({
   }
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn(compact ? "w-[120px]" : "w-full", className)}>
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -139,23 +147,26 @@ export default function ImageUpload({
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
         className={cn(
-          "flex flex-col items-center justify-center gap-2 w-full h-28 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200",
+          "flex flex-col items-center justify-center rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200",
+          compact ? "w-[120px] h-[120px] gap-1" : "w-full h-28 gap-2",
           dragOver
             ? "border-primary bg-primary/5"
             : "border-separator hover:border-primary/50 hover:bg-fill"
         )}
       >
         {uploading ? (
-          <Loader2 size={24} className="animate-spin text-primary" />
+          <Loader2 size={compact ? 20 : 24} className="animate-spin text-primary" />
         ) : (
           <>
-            <Upload size={20} className="text-text-muted" />
-            <span className="text-xs text-text-muted">
-              Перетащите или нажмите для загрузки
+            <Upload size={compact ? 16 : 20} className="text-text-muted" />
+            <span className={cn("text-text-muted text-center px-1", compact ? "text-[10px] leading-tight" : "text-xs")}>
+              {compact ? "Загрузить" : "Перетащите или нажмите для загрузки"}
             </span>
-            <span className="text-xs text-text-muted/60">
-              JPEG, PNG, WebP до 5 МБ
-            </span>
+            {!compact && (
+              <span className="text-xs text-text-muted/60">
+                JPEG, PNG, WebP до 5 МБ
+              </span>
+            )}
           </>
         )}
       </div>
