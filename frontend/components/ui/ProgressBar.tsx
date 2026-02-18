@@ -23,7 +23,7 @@ export default function ProgressBar({
           className={cn(
             "h-full rounded-full transition-all duration-800 ease-out",
             "bg-primary",
-            isComplete && "bg-success"
+            isComplete && "bg-success animate-pulse"
           )}
           style={{ width: `${percentage}%` }}
         />

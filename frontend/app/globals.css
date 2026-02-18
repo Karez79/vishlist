@@ -77,6 +77,16 @@ summary {
   border-radius: 8px;
 }
 
+/* Page transition (template.tsx remounts on navigation) */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.page-transition {
+  animation: fadeIn 0.2s ease-out;
+}
+
 /* Input autofill styling */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,

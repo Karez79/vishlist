@@ -83,7 +83,9 @@ export default function DashboardPage() {
     );
   }
 
-  const wishlists = data?.items || [];
+  const allWishlists = data?.items || [];
+  const wishlists = allWishlists.filter((w) => !w.is_archived);
+  const archivedWishlists = allWishlists.filter((w) => w.is_archived);
   const firstName = getFirstName(user?.name);
 
   return (
@@ -96,8 +98,8 @@ export default function DashboardPage() {
               {getGreeting()}{firstName ? `, ${firstName}` : ""}
             </h1>
             <p className="text-text-muted text-sm mt-1">
-              {wishlists.length > 0
-                ? `У вас ${wishlists.length} ${wishlists.length === 1 ? "вишлист" : wishlists.length < 5 ? "вишлиста" : "вишлистов"}`
+              {allWishlists.length > 0
+                ? `У вас ${allWishlists.length} ${allWishlists.length === 1 ? "вишлист" : allWishlists.length < 5 ? "вишлиста" : "вишлистов"}`
                 : "Создайте первый вишлист и поделитесь с друзьями"}
             </p>
           </div>
@@ -108,7 +110,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {wishlists.length === 0 ? (
+      {allWishlists.length === 0 ? (
         <div className="bg-surface rounded-3xl border border-separator/60 p-8">
           <EmptyState
             icon={<Gift size={48} />}
@@ -120,26 +122,55 @@ export default function DashboardPage() {
         </div>
       ) : (
         <>
-          <h2 className="font-semibold text-text mb-4">
-            Мои вишлисты
-            <span className="text-text-muted font-normal ml-1.5">{wishlists.length}</span>
-          </h2>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {wishlists.map((w, i) => (
-              <motion.div
-                key={w.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: Math.min(i * 0.08, 0.4) }}
-              >
-                <WishlistCard
-                  wishlist={w}
-                  onDelete={handleDelete}
-                  onArchiveToggle={handleArchiveToggle}
-                />
-              </motion.div>
-            ))}
-          </div>
+          {wishlists.length > 0 && (
+            <>
+              <h2 className="font-semibold text-text mb-4">
+                Мои вишлисты
+                <span className="text-text-muted font-normal ml-1.5">{wishlists.length}</span>
+              </h2>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {wishlists.map((w, i) => (
+                  <motion.div
+                    key={w.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: Math.min(i * 0.08, 0.4) }}
+                  >
+                    <WishlistCard
+                      wishlist={w}
+                      onDelete={handleDelete}
+                      onArchiveToggle={handleArchiveToggle}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {archivedWishlists.length > 0 && (
+            <>
+              <h2 className="font-semibold text-text-muted mb-4 mt-8">
+                Архив
+                <span className="font-normal ml-1.5">{archivedWishlists.length}</span>
+              </h2>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {archivedWishlists.map((w, i) => (
+                  <motion.div
+                    key={w.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: Math.min(i * 0.08, 0.4) }}
+                  >
+                    <WishlistCard
+                      wishlist={w}
+                      onDelete={handleDelete}
+                      onArchiveToggle={handleArchiveToggle}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </>
+          )}
 
           {data && data.pages > 1 && (
             <div className="flex justify-center gap-2 mt-8">

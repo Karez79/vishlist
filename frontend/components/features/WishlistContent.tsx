@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Gift, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { EmptyState } from "@/components/ui";
 import PublicItemCard from "@/components/features/PublicItemCard";
 import ShareButton from "@/components/features/ShareButton";
@@ -105,12 +106,23 @@ export default function WishlistContent({
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  const queryClient = useQueryClient();
   const reserveItem = useReserveItem(slug);
   const cancelReservation = useCancelReservation(slug);
   const contributeItem = useContributeItem(slug);
   const cancelContribution = useCancelContribution(slug);
   const updateReservationEmail = useUpdateReservationEmail(slug);
   const updateContributionEmail = useUpdateContributionEmail(slug);
+
+  // Pending cancel timers for delayed DELETE pattern
+  const pendingCancels = useRef<Map<string, { timer: NodeJS.Timeout; snapshot: InfiniteData<PublicWishlist, number> | undefined }>>(new Map());
+
+  // Cleanup pending timers on unmount
+  useEffect(() => {
+    return () => {
+      pendingCancels.current.forEach(({ timer }) => clearTimeout(timer));
+    };
+  }, []);
 
   const [reserveModalItem, setReserveModalItem] = useState<WishlistItem | null>(null);
   const [contributeModalItem, setContributeModalItem] = useState<WishlistItem | null>(null);
@@ -127,27 +139,119 @@ export default function WishlistContent({
     return result;
   };
 
-  const handleCancelReservation = (itemId: string) => {
-    cancelReservation.mutate(itemId, {
-      onSuccess: () => {
-        toast("Резервация отменена");
-      },
-      onError: (error) => {
-        toast.error(getErrorMessage(error, "Не удалось отменить резервацию"));
-      },
-    });
-  };
+  const handleCancelReservation = useCallback((itemId: string) => {
+    const queryKey = ["public-wishlist", slug];
+    type InfiniteWishlist = InfiniteData<PublicWishlist, number>;
+    const snapshot = queryClient.getQueryData<InfiniteWishlist>(queryKey);
 
-  const handleCancelContribution = (contributionId: string) => {
-    cancelContribution.mutate(contributionId, {
-      onSuccess: () => {
-        toast("Вклад отменён");
+    // Optimistically remove reservation from cache
+    if (snapshot) {
+      queryClient.setQueryData<InfiniteWishlist>(queryKey, {
+        ...snapshot,
+        pages: snapshot.pages.map((page) => ({
+          ...page,
+          items_data: {
+            ...page.items_data,
+            items: page.items_data.items.map((item) =>
+              item.id === itemId
+                ? { ...item, is_reserved: false, reservation: null }
+                : item
+            ),
+          },
+        })),
+      });
+    }
+
+    // Delayed DELETE — send after 5s unless undone
+    const timer = setTimeout(() => {
+      pendingCancels.current.delete(itemId);
+      cancelReservation.mutate(itemId, {
+        onError: (error) => {
+          // Restore on server error
+          if (snapshot) queryClient.setQueryData(queryKey, snapshot);
+          toast.error(getErrorMessage(error, "Не удалось отменить резервацию"));
+        },
+      });
+    }, 5000);
+
+    pendingCancels.current.set(itemId, { timer, snapshot });
+
+    toast("Резервация отменена", {
+      action: {
+        label: "Отменить",
+        onClick: () => {
+          const pending = pendingCancels.current.get(itemId);
+          if (pending) {
+            clearTimeout(pending.timer);
+            if (pending.snapshot) queryClient.setQueryData(queryKey, pending.snapshot);
+            pendingCancels.current.delete(itemId);
+          }
+        },
       },
-      onError: (error) => {
-        toast.error(getErrorMessage(error, "Не удалось отменить вклад"));
-      },
+      duration: 5000,
     });
-  };
+  }, [slug, queryClient, cancelReservation]);
+
+  const handleCancelContribution = useCallback((contributionId: string) => {
+    const queryKey = ["public-wishlist", slug];
+    type InfiniteWishlist = InfiniteData<PublicWishlist, number>;
+    const snapshot = queryClient.getQueryData<InfiniteWishlist>(queryKey);
+
+    // Optimistically remove contribution from cache
+    if (snapshot) {
+      queryClient.setQueryData<InfiniteWishlist>(queryKey, {
+        ...snapshot,
+        pages: snapshot.pages.map((page) => ({
+          ...page,
+          items_data: {
+            ...page.items_data,
+            items: page.items_data.items.map((item) => {
+              const contribution = item.contributions?.find(
+                (c) => c.id === contributionId
+              );
+              if (!contribution) return item;
+              return {
+                ...item,
+                total_contributed: item.total_contributed - contribution.amount,
+                contributors_count: Math.max(0, item.contributors_count - 1),
+                contributions: item.contributions?.filter(
+                  (c) => c.id !== contributionId
+                ),
+              };
+            }),
+          },
+        })),
+      });
+    }
+
+    // Delayed DELETE
+    const timer = setTimeout(() => {
+      pendingCancels.current.delete(contributionId);
+      cancelContribution.mutate(contributionId, {
+        onError: (error) => {
+          if (snapshot) queryClient.setQueryData(queryKey, snapshot);
+          toast.error(getErrorMessage(error, "Не удалось отменить вклад"));
+        },
+      });
+    }, 5000);
+
+    pendingCancels.current.set(contributionId, { timer, snapshot });
+
+    toast("Вклад отменён", {
+      action: {
+        label: "Отменить",
+        onClick: () => {
+          const pending = pendingCancels.current.get(contributionId);
+          if (pending) {
+            clearTimeout(pending.timer);
+            if (pending.snapshot) queryClient.setQueryData(queryKey, pending.snapshot);
+            pendingCancels.current.delete(contributionId);
+          }
+        },
+      },
+      duration: 5000,
+    });
+  }, [slug, queryClient, cancelContribution]);
 
   const handleContribute = async (guestName: string, amount: number) => {
     if (!contributeModalItem) throw new Error("No item selected");

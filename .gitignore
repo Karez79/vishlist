@@ -32,3 +32,4 @@ backend/.env
 # Build
 dist/
 build/
+.vercel
