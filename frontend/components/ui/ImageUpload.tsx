@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Loader2, ImageOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/lib/store";
 
@@ -87,17 +87,34 @@ export default function ImageUpload({
     [uploadFile]
   );
 
+  const [imgError, setImgError] = useState(false);
+
+  // Reset error when value changes
+  const prevValue = useRef(value);
+  if (value !== prevValue.current) {
+    prevValue.current = value;
+    if (imgError) setImgError(false);
+  }
+
   if (value) {
     return (
       <div className={cn("relative w-full", className)}>
         <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-separator bg-fill">
-          <Image
-            src={value}
-            alt="Preview"
-            fill
-            className="object-contain"
-            sizes="(max-width: 768px) 100vw, 400px"
-          />
+          {imgError ? (
+            <div className="flex flex-col items-center justify-center w-full h-full gap-1.5 text-text-muted">
+              <ImageOff size={28} />
+              <span className="text-xs">Не удалось загрузить</span>
+            </div>
+          ) : (
+            <Image
+              src={value}
+              alt="Preview"
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 100vw, 400px"
+              onError={() => setImgError(true)}
+            />
+          )}
           <button
             type="button"
             onClick={() => onChange(undefined)}

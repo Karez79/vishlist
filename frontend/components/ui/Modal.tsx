@@ -60,12 +60,12 @@ export default function Modal({
                 className={cn(
                   "fixed z-50 bg-surface focus:outline-none",
                   // Mobile: bottom sheet
-                  "bottom-0 left-0 right-0 rounded-t-[28px] p-6 max-h-[85vh] overflow-y-auto",
+                  "bottom-0 left-0 right-0 rounded-t-[28px] p-6 max-h-[92vh] overflow-y-auto",
                   "shadow-[0_-8px_40px_rgba(0,0,0,0.1),0_-2px_12px_rgba(0,0,0,0.06)]",
                   // Desktop: centered dialog
                   "sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:right-auto",
                   "sm:-translate-x-1/2 sm:-translate-y-1/2",
-                  "sm:rounded-3xl sm:w-full sm:max-w-md sm:max-h-[85vh]",
+                  "sm:rounded-3xl sm:w-full sm:max-w-md sm:max-h-[92vh]",
                   "sm:shadow-[0_20px_60px_rgba(0,0,0,0.12),0_4px_20px_rgba(0,0,0,0.08)]",
                   className
                 )}

@@ -106,14 +106,23 @@ export default function ItemForm({
     onOpenChange(false);
   };
 
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      reset(defaultValues || {});
+      setShowAdvanced(false);
+      lastParsedUrl.current = "";
+      clearTimeout(debounceTimer.current);
+    }
+    onOpenChange(isOpen);
+  };
+
   return (
-    <Modal open={open} onOpenChange={onOpenChange} title={title}>
+    <Modal open={open} onOpenChange={handleOpenChange} title={title}>
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-        {/* URL field with loading indicator */}
         <div className="relative">
           <Input
             label="Ссылка на товар"
-            placeholder="https://... (данные подтянутся автоматически)"
+            placeholder="https://..."
             error={errors.url?.message}
             {...urlRegistration}
             onChange={(e) => {
@@ -122,9 +131,8 @@ export default function ItemForm({
             }}
           />
           {parseUrl.isPending && (
-            <div className="absolute right-3 top-8 flex items-center gap-1.5 text-primary">
-              <Loader2 size={14} className="animate-spin" />
-              <span className="text-xs">Загрузка...</span>
+            <div className="absolute right-3 top-[34px]">
+              <Loader2 size={16} className="animate-spin text-text-muted" />
             </div>
           )}
         </div>
