@@ -128,18 +128,22 @@ export default function ItemForm({
           )}
         </div>
 
+        {/* Image URL under product URL */}
+        <Input
+          placeholder="Ссылка на картинку"
+          error={errors.image_url?.message}
+          {...register("image_url")}
+        />
+
         {/* Desktop: image left, fields right. Mobile: stacked */}
-        <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-4">
-          {/* Image */}
-          <div className="space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-4 sm:items-stretch">
+          {/* Image — stretches to full height of right column */}
+          <div className="sm:flex sm:flex-col">
             <ImageUpload
               value={watch("image_url") || undefined}
               onChange={(url) => setValue("image_url", url || "")}
-            />
-            <Input
-              placeholder="Или ссылка на картинку"
-              error={errors.image_url?.message}
-              {...register("image_url")}
+              className="sm:flex-1"
+              fillHeight
             />
           </div>
 
