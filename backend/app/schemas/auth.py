@@ -12,6 +12,10 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class GoogleMobileAuthRequest(BaseModel):
+    id_token: str = Field(min_length=1)
+
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"

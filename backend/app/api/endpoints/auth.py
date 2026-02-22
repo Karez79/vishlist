@@ -11,6 +11,7 @@ from app.core.limiter import limiter
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
 from app.schemas.auth import (
+    GoogleMobileAuthRequest,
     LoginRequest,
     RegisterRequest,
     TokenResponse,
@@ -110,7 +111,44 @@ async def get_me(user: User = Depends(get_current_user)):
     )
 
 
-# --- Google OAuth ---
+# --- Google OAuth (shared helper + endpoints) ---
+
+
+async def _find_or_create_google_user(
+    db: AsyncSession,
+    email: str,
+    name: str,
+    avatar_url: str | None,
+    oauth_id: str | None,
+) -> User:
+    """Find existing user by email or create a new Google OAuth user.
+
+    Shared logic between the web OAuth callback and mobile id_token flow.
+    """
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+
+    if user:
+        # Merge: attach OAuth to existing email/password account
+        if not user.oauth_provider:
+            user.oauth_provider = "google"
+            user.oauth_id = oauth_id
+        if avatar_url and not user.avatar_url:
+            user.avatar_url = avatar_url
+        await db.flush()
+    else:
+        user = User(
+            email=email,
+            name=name,
+            avatar_url=avatar_url,
+            oauth_provider="google",
+            oauth_id=oauth_id,
+        )
+        db.add(user)
+        await db.flush()
+
+    return user
+
 
 @router.get("/google")
 async def google_login(request: Request):
@@ -146,28 +184,65 @@ async def google_callback(request: Request, db: AsyncSession = Depends(get_db)):
     avatar_url = user_info.get("picture")
     oauth_id = user_info.get("sub")
 
-    result = await db.execute(select(User).where(User.email == email))
-    user = result.scalar_one_or_none()
-
-    if user:
-        # Merge: attach OAuth to existing email/password account
-        if not user.oauth_provider:
-            user.oauth_provider = "google"
-            user.oauth_id = oauth_id
-        if avatar_url and not user.avatar_url:
-            user.avatar_url = avatar_url
-        await db.flush()
-    else:
-        user = User(
-            email=email,
-            name=name,
-            avatar_url=avatar_url,
-            oauth_provider="google",
-            oauth_id=oauth_id,
-        )
-        db.add(user)
-        await db.flush()
+    user = await _find_or_create_google_user(db, email, name, avatar_url, oauth_id)
 
     jwt_token = create_access_token(user.id)
     logger.info("OAuth login: %s", email)
     return RedirectResponse(f"{settings.FRONTEND_URL}/callback?token={jwt_token}")
+
+
+# --- Google Mobile Auth (id_token verification) ---
+
+
+@router.post("/google/mobile", response_model=TokenResponse)
+@limiter.limit("10/minute")
+async def google_mobile_auth(
+    request: Request,
+    data: GoogleMobileAuthRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Verify a Google id_token from a mobile client and return a JWT.
+
+    Used by React Native (Google Sign-In) where the client already has an
+    id_token and only needs it exchanged for an app-level JWT.
+    """
+    if not settings.GOOGLE_CLIENT_ID:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="Google OAuth not configured",
+        )
+
+    # Verify the id_token with Google
+    try:
+        from google.auth.transport import requests as google_requests
+        from google.oauth2 import id_token as google_id_token
+
+        id_info = google_id_token.verify_oauth2_token(
+            data.id_token,
+            google_requests.Request(),
+            settings.GOOGLE_CLIENT_ID,
+        )
+    except ValueError as exc:
+        logger.warning("Invalid Google id_token: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Google id_token",
+        )
+
+    email = id_info.get("email")
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Google token does not contain an email",
+        )
+
+    email = email.lower().strip()
+    name = id_info.get("name", email.split("@")[0])
+    avatar_url = id_info.get("picture")
+    oauth_id = id_info.get("sub")
+
+    user = await _find_or_create_google_user(db, email, name, avatar_url, oauth_id)
+
+    jwt_token = create_access_token(user.id)
+    logger.info("Mobile Google auth: %s", email)
+    return TokenResponse(access_token=jwt_token)
