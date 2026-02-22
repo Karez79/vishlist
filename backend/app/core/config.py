@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     RESEND_API_KEY: str = ""
     RESEND_FROM_EMAIL: str = "noreply@vishlist.app"
 
+    VERCEL_BLOB_READ_WRITE_TOKEN: str = ""
+
     @field_validator("DATABASE_URL")
     @classmethod
     def fix_database_url(cls, v: str) -> str:

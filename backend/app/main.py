@@ -9,7 +9,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from app.api.endpoints import auth, health, items, parse_url, public, reservations, wishlists, ws
+from app.api.endpoints import auth, health, items, parse_url, public, reservations, upload, wishlists, ws
 from app.core.config import settings
 from app.core.limiter import limiter
 
@@ -73,5 +73,6 @@ app.include_router(public.router, prefix="/api", tags=["public"])
 app.include_router(reservations.router, prefix="/api", tags=["reservations"])
 app.include_router(ws.router, prefix="/api")
 app.include_router(parse_url.router, prefix="/api", tags=["utils"])
+app.include_router(upload.router, prefix="/api", tags=["upload"])
 
 logger.info("Vishlist API started")
