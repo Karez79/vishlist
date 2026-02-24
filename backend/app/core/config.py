@@ -21,6 +21,10 @@ class Settings(BaseSettings):
 
     VERCEL_BLOB_READ_WRITE_TOKEN: str = ""
 
+    # Local file uploads (Railway Volume or local dir)
+    UPLOAD_DIR: str = "/data/uploads"
+    BASE_URL: str = "http://localhost:8000"
+
     @field_validator("DATABASE_URL")
     @classmethod
     def fix_database_url(cls, v: str) -> str:
